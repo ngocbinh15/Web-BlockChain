@@ -554,13 +554,17 @@
         createParticles();
       });
 
-      // ===== LOGIC ĐĂNG NHẬP MÔ PHỎNG =====
-      document.getElementById('loginForm').addEventListener('submit', function (e) {
+      // ===== API CONFIG =====
+      const API_BASE_URL = 'https://web-blockchain-production.up.railway.app/api';
+
+      // ===== LOGIC ĐĂNG NHẬP =====
+      document.getElementById('loginForm').addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        // Lấy vai trò được chọn
+        // Lấy thông tin form
         const role = document.getElementById('userRole').value;
         const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
         // Kiểm tra xem đã chọn vai trò chưa
         if (!role) {
@@ -568,39 +572,64 @@
           return;
         }
 
-        // Lưu thông tin người dùng vào localStorage (mô phỏng session)
-        localStorage.setItem('userRole', role);
-        localStorage.setItem('username', username);
-        localStorage.setItem('loginTime', new Date().toISOString());
-
         // Hiển thị thông báo đang đăng nhập
         const btn = document.querySelector('button[type="submit"]');
         const originalText = btn.innerHTML;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang đăng nhập...';
         btn.disabled = true;
 
-        // Mô phỏng độ trễ đăng nhập
-        setTimeout(() => {
-          // Chuyển hướng theo vai trò
-          switch (role) {
-            case 'admin':
-              window.location.href = 'dashboard.html';
-              break;
-            case 'farmer':
-            case 'mill':
-            case 'transport':
-            case 'distributor':
-              window.location.href = 'input_form.html';
-              break;
-            case 'consumer':
-              window.location.href = 'traceability.html';
-              break;
-            default:
-              alert('Vai trò không hợp lệ!');
-              btn.innerHTML = originalText;
-              btn.disabled = false;
+        try {
+          // Gọi API đăng nhập
+          const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Lưu thông tin người dùng vào localStorage
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userRole', role);
+            localStorage.setItem('username', username);
+            localStorage.setItem('loginTime', new Date().toISOString());
+
+            // Chuyển hướng theo vai trò
+            setTimeout(() => {
+              switch (role) {
+                case 'admin':
+                  window.location.href = 'dashboard.html';
+                  break;
+                case 'farmer':
+                case 'mill':
+                case 'transport':
+                case 'distributor':
+                  window.location.href = 'input_form.html';
+                  break;
+                case 'consumer':
+                  window.location.href = 'traceability.html';
+                  break;
+                default:
+                  alert('Vai trò không hợp lệ!');
+                  btn.innerHTML = originalText;
+                  btn.disabled = false;
+              }
+            }, 500);
+          } else {
+            // Hiển thị lỗi
+            alert(data.message || 'Đăng nhập thất bại!');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
           }
-        }, 1000);
+        } catch (error) {
+          console.error('Login error:', error);
+          alert('Không thể kết nối đến server. Vui lòng thử lại!');
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
       });
 
       // Hiển thị gợi ý khi chọn vai trò
