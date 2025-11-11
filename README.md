@@ -25,6 +25,7 @@ Hệ thống quản lý chuỗi cung ứng gạo dựa trên công nghệ Blockc
 ## 📦 Cài đặt
 
 1. Clone repository:
+
 ```bash
 git clone https://github.com/[your-username]/blockchain-rice-supply-chain.git
 ```
@@ -45,22 +46,26 @@ Sử dụng các tài khoản sau để đăng nhập:
 ## 📱 Giao diện
 
 ### Trang chủ
+
 - Landing page với 3 card chính: Đăng nhập, Truy xuất, Giới thiệu
 - Thống kê tổng quan hệ thống
 
 ### Dashboard Admin
+
 - Sidebar navigation với gradient xanh
 - 4 stat cards: Người dùng, Lô gạo, Giao dịch, Block
 - Biểu đồ phân bổ vai trò
 - Biểu đồ giao dịch 7 ngày
 
 ### Trang đăng nhập
+
 - Glassmorphism effect
 - Dropdown chọn vai trò với animation
 - Password visibility toggle
 - Background particles animation
 
 ### Truy xuất nguồn gốc
+
 - Scan QR code hoặc nhập mã batch
 - Timeline hiển thị lịch sử chuỗi cung ứng
 
