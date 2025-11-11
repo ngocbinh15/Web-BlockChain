@@ -20,9 +20,25 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Middleware - Allow multiple frontend origins
+const allowedOrigins = [
+  'https://nnbblockchain.netlify.app',
+  'https://ngocbinh15.github.io',
+  'http://127.0.0.1:5500', // Local development
+  'http://localhost:5500'
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.FRONTEND_URL === '*') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
