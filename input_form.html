@@ -13,10 +13,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nhập liệu - Chuỗi cung ứng</title>
-  
+
   <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2328a745;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%2320c997;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Ctext x='50' y='70' font-family='Arial, sans-serif' font-size='45' font-weight='bold' fill='white' text-anchor='middle'%3ENNB%3C/text%3E%3C/svg%3E">
-  
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2328a745;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%2320c997;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Ctext x='50' y='70' font-family='Arial, sans-serif' font-size='45' font-weight='bold' fill='white' text-anchor='middle'%3ENNB%3C/text%3E%3C/svg%3E">
+
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -312,10 +313,14 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/main.js"></script>
   <script>
+    // ===== API CONFIG =====
+    const API_BASE_URL = 'https://web-blockchain-production.up.railway.app/api';
+
     // ===== CHECK LOGIN =====
     window.addEventListener('DOMContentLoaded', () => {
       const userRole = localStorage.getItem('userRole');
       const username = localStorage.getItem('username');
+      const token = localStorage.getItem('token');
 
       if (!userRole) {
         alert('Bạn cần đăng nhập!');
@@ -352,7 +357,7 @@
     }
 
     // ===== UC2: TẠO LÔ SẢN PHẨM MỚI =====
-    document.getElementById('createBatchForm').addEventListener('submit', function (e) {
+    document.getElementById('createBatchForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const variety = document.getElementById('riceVariety').value;
@@ -364,37 +369,47 @@
       // Sinh Token ID (hash mô phỏng)
       const tokenId = generateTokenId(variety, location, plantDate);
 
-      // Lưu vào localStorage
-      const batch = {
-        tokenId: tokenId,
-        variety: variety,
-        location: location,
-        area: area,
-        plantDate: plantDate,
-        note: note,
-        creator: localStorage.getItem('username') || 'Unknown',
-        createdAt: new Date().toISOString(),
-        status: 'Đang canh tác'
-      };
+      try {
+        // Gọi API để tạo batch mới
+        const response = await fetch(`${API_BASE_URL}/batches`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            code: tokenId,
+            variety: variety,
+            location: location,
+            area: parseFloat(area),
+            plantDate: plantDate,
+            notes: note
+          })
+        });
 
-      // Lấy danh sách lô hiện tại
-      let batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
-      batches.push(batch);
-      localStorage.setItem('riceBatches', JSON.stringify(batches));
+        const result = await response.json();
 
-      // Hiển thị Token ID
-      document.getElementById('generatedTokenId').textContent = tokenId;
-      document.getElementById('tokenIdDisplay').style.display = 'block';
+        if (result.success) {
+          // Hiển thị Token ID
+          document.getElementById('generatedTokenId').textContent = tokenId;
+          document.getElementById('tokenIdDisplay').style.display = 'block';
 
-      // Hiển thị thông báo
-      showToast(`✅ Lô sản phẩm đã được tạo thành công!\n\nToken ID: ${tokenId}\n\n🔗 Giao dịch đã được ghi nhận trên blockchain (mô phỏng).`);
+          // Hiển thị thông báo
+          showToast(`✅ Lô sản phẩm đã được tạo thành công!\n\nToken ID: ${tokenId}\n\n🔗 Giao dịch đã được ghi nhận trên blockchain.`);
 
-      // Reset form sau 3s
-      setTimeout(() => {
-        this.reset();
-        document.getElementById('tokenIdDisplay').style.display = 'none';
-        loadTokenIds(); // Reload danh sách
-      }, 3000);
+          // Reset form sau 3s
+          setTimeout(() => {
+            this.reset();
+            document.getElementById('tokenIdDisplay').style.display = 'none';
+            loadTokenIds(); // Reload danh sách
+          }, 3000);
+        } else {
+          showToast(`❌ Lỗi: ${result.message || 'Không thể tạo lô sản phẩm'}`);
+        }
+      } catch (error) {
+        console.error('Create batch error:', error);
+        showToast('❌ Không thể kết nối đến server. Vui lòng thử lại!');
+      }
     });
 
     // ===== SINH TOKEN ID MÔ PHỎNG =====
@@ -425,7 +440,7 @@
     }
 
     // ===== UC3: GHI NHẬN SỰ KIỆN =====
-    document.getElementById('eventForm').addEventListener('submit', function (e) {
+    document.getElementById('eventForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const tokenId = document.getElementById('tokenId').value;
@@ -435,32 +450,41 @@
       const eventPerformer = document.getElementById('eventPerformer').value;
       const eventDescription = document.getElementById('eventDescription').value;
 
-      // Tạo sự kiện
-      const event = {
-        tokenId: tokenId,
-        type: eventType,
-        typeName: document.getElementById('eventType').selectedOptions[0].text,
-        time: eventTime,
-        location: eventLocation,
-        performer: eventPerformer || localStorage.getItem('username') || 'Unknown',
-        description: eventDescription,
-        recordedAt: new Date().toISOString(),
-        blockHash: '0x' + Math.random().toString(16).substring(2, 12)
-      };
+      try {
+        // Gọi API để thêm transaction/event
+        const response = await fetch(`${API_BASE_URL}/batches/${tokenId}/transaction`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            type: eventType,
+            location: eventLocation,
+            performer: eventPerformer || username || 'Unknown',
+            description: eventDescription,
+            timestamp: eventTime
+          })
+        });
 
-      // Lưu vào localStorage
-      let events = JSON.parse(localStorage.getItem('riceEvents') || '[]');
-      events.unshift(event); // Thêm vào đầu mảng
-      localStorage.setItem('riceEvents', JSON.stringify(events));
+        const result = await response.json();
 
-      // Hiển thị thông báo
-      showToast(`✅ Sự kiện đã được ghi nhận lên blockchain (mô phỏng)!\n\nLoại: ${event.typeName}\nToken ID: ${tokenId}\nBlock Hash: ${event.blockHash}`);
+        if (result.success) {
+          // Hiển thị thông báo thành công
+          showToast(`✅ Sự kiện đã được ghi nhận!\n\n📦 Lô: ${tokenId}\n📝 ${document.getElementById('eventType').selectedOptions[0].text}\n\n🔗 Đã lưu trên blockchain.`);
 
-      // Reset form
-      this.reset();
-
-      // Reload recent events
-      loadRecentEvents();
+          // Reset form sau 2s
+          setTimeout(() => {
+            this.reset();
+            loadRecentEvents(); // Reload danh sách sự kiện
+          }, 2000);
+        } else {
+          showToast(`❌ Lỗi: ${result.message || 'Không thể ghi nhận sự kiện'}`);
+        }
+      } catch (error) {
+        console.error('Add event error:', error);
+        showToast('❌ Không thể kết nối đến server. Vui lòng thử lại!');
+      }
     });
 
     // ===== LOAD TOKEN IDs =====
