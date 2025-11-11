@@ -1,0 +1,17 @@
+name: Keep Railway Backend Alive
+
+on:
+  schedule:
+    # Chạy mỗi 4 phút (Railway sleep sau 5 phút idle)
+    - cron: "*/4 * * * *"
+  workflow_dispatch: # Cho phép chạy thủ công
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend Health Check
+        run: |
+          echo "Pinging Railway backend..."
+          curl -f https://web-blockchain-production.up.railway.app/api/health || echo "Ping failed but continuing..."
+          echo "Backend pinged successfully at $(date)"
