@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ thống Blockchain Quản lý Chuỗi Cung Ứng Gạo</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Modern Landing Page Styles */
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .hero-section {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(circle at 20% 50%, rgba(40, 167, 69, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(32, 201, 151, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(40, 167, 69, 0.08) 0%, transparent 50%);
+      animation: gradientShift 15s ease infinite;
+    }
+
+    @keyframes gradientShift {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    .particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      top: 0;
+      left: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(40, 167, 69, 0.5);
+      border-radius: 50%;
+      animation: float 20s infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-100vh) translateX(50px);
+        opacity: 0;
+      }
+    }
+
+    .content-wrapper {
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-icon {
+      animation: iconFloat 3s ease-in-out infinite;
+      filter: drop-shadow(0 10px 30px rgba(40, 167, 69, 0.4));
+    }
+
+    @keyframes iconFloat {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-20px) rotate(5deg);
+      }
+    }
+
+    .main-title {
+      font-size: 4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      animation: titleSlideIn 1s ease-out;
+      text-shadow: 0 0 30px rgba(40, 167, 69, 0.3);
+    }
+
+    @keyframes titleSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .subtitle {
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: 300;
+      margin-bottom: 1rem;
+      animation: titleSlideIn 1s ease-out 0.2s backwards;
+    }
+
+    .tagline {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.2rem;
+      margin-bottom: 3rem;
+      animation: titleSlideIn 1s ease-out 0.4s backwards;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 2.5rem 1.5rem;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      animation: cardSlideUp 0.8s ease-out backwards;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .feature-card:nth-child(1) {
+      animation-delay: 0.6s;
+    }
+
+    .feature-card:nth-child(2) {
+      animation-delay: 0.8s;
+    }
+
+    .feature-card:nth-child(3) {
+      animation-delay: 1s;
+    }
+
+    @keyframes cardSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .feature-card:hover::before {
+      left: 100%;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-15px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(40, 167, 69, 0.3);
+      border-color: rgba(40, 167, 69, 0.3);
+    }
+
+    .feature-icon {
+      font-size: 4rem;
+      color: #28a745;
+      margin-bottom: 1.5rem;
+      transition: all 0.4s ease;
+      display: inline-block;
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.2) rotate(10deg);
+      filter: drop-shadow(0 5px 15px rgba(40, 167, 69, 0.5));
+    }
+
+    .feature-card h5 {
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+    }
+
+    .feature-card p {
+      color: #6c757d;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modern-btn {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      border: none;
+      padding: 12px 35px;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(40, 167, 69, 0.3);
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modern-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.5s, height 0.5s;
+    }
+
+    .modern-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .modern-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(40, 167, 69, 0.5);
+    }
+
+    .modern-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Stats Section */
+    .stats-bar {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 2rem 0;
+      margin-top: 4rem;
+      border-radius: 15px;
+      animation: titleSlideIn 1s ease-out 1.2s backwards;
+    }
+
+    .stat-item {
+      text-align: center;
+      color: white;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #28a745;
+      display: block;
+      text-shadow: 0 0 20px rgba(40, 167, 69, 0.5);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main-title {
+        font-size: 2.5rem;
+      }
+
+      .subtitle {
+        font-size: 1.3rem;
+      }
+
+      .feature-card {
+        margin-bottom: 1.5rem;
+      }
+    }
+
+    /* Modal Improvements */
+    .modal-content {
+      border-radius: 20px;
+      border: none;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      border: none;
+      padding: 1.5rem;
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .feature-list-item {
+      padding: 0.8rem 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .feature-list-item:hover {
+      background: rgba(40, 167, 69, 0.05);
+      padding-left: 1rem;
+    }
+
+    .role-badge {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .role-badge:hover {
+      transform: scale(1.1);
+      box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <!-- Animated Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Main Content -->
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center content-wrapper">
+      <div class="text-center px-3">
+        <!-- Hero Icon -->
+        <div class="mb-4 hero-icon">
+          <i class="bi bi-shield-check" style="font-size: 6rem; color: #28a745;"></i>
+        </div>
+
+        <h1 class="main-title">Blockchain Rice Supply Chain</h1>
+        <h2 class="subtitle">Quản Lý Chuỗi Cung Ứng Gạo</h2>
+        <p class="tagline">
+          <i class="bi bi-check-circle-fill text-success"></i> Minh bạch &nbsp;&nbsp;
+          <i class="bi bi-check-circle-fill text-success"></i> Truy xuất nguồn gốc &nbsp;&nbsp;
+          <i class="bi bi-check-circle-fill text-success"></i> An toàn
+        </p>
+
+        <div class="row g-4 justify-content-center mt-4 mb-5 px-md-5">
+          <div class="col-lg-4 col-md-5 col-sm-10">
+            <div class="feature-card">
+              <i class="bi bi-person-circle feature-icon"></i>
+              <h5>Đăng Nhập</h5>
+              <p>Truy cập hệ thống với vai trò của bạn</p>
+              <a href="login.html" class="modern-btn text-decoration-none">
+                <span>ĐĂNG NHẬP <i class="bi bi-arrow-right"></i></span>
+              </a>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-5 col-sm-10">
+            <div class="feature-card">
+              <i class="bi bi-qr-code-scan feature-icon"></i>
+              <h5>Truy Xuất</h5>
+              <p>Quét mã QR để xem lịch sử sản phẩm</p>
+              <a href="traceability.html" class="modern-btn text-decoration-none">
+                <span>TRUY XUẤT <i class="bi bi-search"></i></span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Card Thông tin -->
+          <div class="col-lg-4 col-md-5 col-sm-10">
+            <div class="feature-card">
+              <i class="bi bi-info-circle feature-icon"></i>
+              <h5>Giới Thiệu</h5>
+              <p>Tìm hiểu về hệ thống blockchain</p>
+              <a href="#" class="modern-btn text-decoration-none" data-bs-toggle="modal" data-bs-target="#infoModal">
+                <span>XEM THÊM <i class="bi bi-book"></i></span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+          <div class="row">
+            <div class="col-md-3 col-6">
+              <div class="stat-item">
+                <span class="stat-number" data-count="1250">0</span>
+                <span class="stat-label">Lô Gạo</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="stat-item">
+                <span class="stat-number" data-count="5600">0</span>
+                <span class="stat-label">Giao Dịch</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="stat-item">
+                <span class="stat-number" data-count="234">0</span>
+                <span class="stat-label">Người Dùng</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="stat-item">
+                <span class="stat-number">99.9%</span>
+                <span class="stat-label">Độ Tin Cậy</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Giới thiệu -->
+  <div class="modal fade" id="infoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-shield-shaded"></i>
+            Về Hệ Thống Blockchain Quản Lý Chuỗi Cung Ứng Gạo
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-4">
+            <h6 class="text-success mb-3 fw-bold">
+              <i class="bi bi-shield-check"></i> Tính Năng Chính
+            </h6>
+            <ul class="list-unstyled">
+              <li class="feature-list-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <strong>Truy xuất nguồn gốc minh bạch</strong> - Theo dõi toàn bộ hành trình của sản phẩm
+              </li>
+              <li class="feature-list-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <strong>Quản lý toàn bộ chuỗi cung ứng</strong> - Từ nông trại đến người tiêu dùng
+              </li>
+              <li class="feature-list-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <strong>Bảo mật dữ liệu với blockchain</strong> - Không thể thay đổi, giả mạo thông tin
+              </li>
+              <li class="feature-list-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <strong>Ghi nhận sự kiện real-time</strong> - Cập nhật trạng thái tức thời
+              </li>
+              <li class="feature-list-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <strong>QR Code tích hợp</strong> - Quét mã dễ dàng bằng điện thoại
+              </li>
+              <li class="feature-list-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <strong>Dashboard thống kê</strong> - Báo cáo trực quan, chi tiết
+              </li>
+            </ul>
+          </div>
+
+          <div class="mb-4">
+            <h6 class="text-success mb-3 fw-bold">
+              <i class="bi bi-people-fill"></i> Vai Trò Trong Hệ Thống
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <span class="badge bg-success role-badge fs-6 w-100 py-2">
+                  <i class="bi bi-person-gear"></i> Admin - Quản lý hệ thống
+                </span>
+              </div>
+              <div class="col-md-6">
+                <span class="badge bg-success role-badge fs-6 w-100 py-2">
+                  <i class="bi bi-tree"></i> Nông dân - Khởi tạo lô gạo
+                </span>
+              </div>
+              <div class="col-md-6">
+                <span class="badge bg-success role-badge fs-6 w-100 py-2">
+                  <i class="bi bi-building"></i> Nhà máy - Xay xát, đóng gói
+                </span>
+              </div>
+              <div class="col-md-6">
+                <span class="badge bg-success role-badge fs-6 w-100 py-2">
+                  <i class="bi bi-truck"></i> Vận chuyển - Giao nhận hàng
+                </span>
+              </div>
+              <div class="col-md-6">
+                <span class="badge bg-success role-badge fs-6 w-100 py-2">
+                  <i class="bi bi-shop"></i> Phân phối - Bán lẻ
+                </span>
+              </div>
+              <div class="col-md-6">
+                <span class="badge bg-success role-badge fs-6 w-100 py-2">
+                  <i class="bi bi-person-check"></i> Người tiêu dùng - Truy xuất
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-success border-0">
+            <i class="bi bi-info-circle-fill"></i>
+            <strong>Lưu ý:</strong> Đây là hệ thống demo sử dụng LocalStorage để lưu trữ dữ liệu.
+            Trong thực tế, dữ liệu sẽ được ghi nhận trên blockchain thật sự.
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="modern-btn" data-bs-dismiss="modal">
+            <span>Đã Hiểu <i class="bi bi-check-lg"></i></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Custom JavaScript -->
+  <script>
+    // Create animated particles
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 50;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 20 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // Animate counter numbers
+    function animateCounter(element) {
+      const target = parseInt(element.getAttribute('data-count'));
+      const duration = 2000;
+      const increment = target / (duration / 16);
+      let current = 0;
+
+      const updateCounter = () => {
+        current += increment;
+        if (current < target) {
+          element.textContent = Math.floor(current).toLocaleString();
+          requestAnimationFrame(updateCounter);
+        } else {
+          element.textContent = target.toLocaleString();
+        }
+      };
+
+      updateCounter();
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function () {
+      // Create particles
+      createParticles();
+
+      // Animate counters when visible
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const counters = document.querySelectorAll('.stat-number[data-count]');
+            counters.forEach(counter => {
+              animateCounter(counter);
+            });
+            observer.disconnect();
+          }
+        });
+      });
+
+      const statsBar = document.querySelector('.stats-bar');
+      if (statsBar) {
+        observer.observe(statsBar);
+      }
+
+      // Add smooth scroll behavior
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      // Add keyboard navigation
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('infoModal'));
+          if (modal) modal.hide();
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

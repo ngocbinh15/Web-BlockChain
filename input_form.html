@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nhập liệu - Chuỗi cung ứng</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .tab-card {
+      animation: fadeInUp 0.8s ease-out;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-gradient">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">
+        <i class="bi bi-box-seam"></i> Rice Chain - Nhập liệu
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <span class="nav-link text-white">
+              <i class="bi bi-person-circle"></i> <span id="userDisplayName">Người dùng</span>
+            </span>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="logout()">
+              <i class="bi bi-box-arrow-left"></i> Đăng xuất
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4 page-header">
+      <div class="col text-center">
+        <i class="bi bi-clipboard-data text-success header-icon" style="font-size: 3rem;"></i>
+        <h2 class="mt-2 fw-bold"><i class="bi bi-clipboard-data"></i> Quản lý Chuỗi Cung Ứng</h2>
+        <p class="text-muted">Ghi nhận các sự kiện trong quá trình sản xuất và vận chuyển</p>
+      </div>
+    </div>
+
+    <!-- ===== TAB NAVIGATION ===== -->
+    <ul class="nav nav-tabs nav-fill mb-4 tab-card" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold" id="create-tab" data-bs-toggle="tab" data-bs-target="#create"
+          type="button" style="color: #28a745;">
+          <i class="bi bi-plus-circle"></i> Tạo Lô Mới (UC2)
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold" id="event-tab" data-bs-toggle="tab" data-bs-target="#event" type="button"
+          style="color: #28a745;">
+          <i class="bi bi-calendar-check"></i> Ghi Nhận Sự Kiện (UC3)
+        </button>
+      </li>
+    </ul>
+
+    <!-- ===== TAB CONTENT ===== -->
+    <div class="tab-content" id="myTabContent">
+
+      <!-- ===== TAB 1: TẠO LÔ SẢN PHẨM MỚI (UC2) ===== -->
+      <div class="tab-pane fade show active" id="create" role="tabpanel">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="modern-card">
+              <div class="card-header text-white"
+                style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; border-radius: 20px 20px 0 0;">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-plus-square"></i> Khởi tạo lô sản phẩm mới</h5>
+              </div>
+              <div class="card-body p-4">
+                <form id="createBatchForm">
+                  <!-- Giống lúa -->
+                  <div class="mb-3">
+                    <label for="riceVariety" class="form-label">
+                      <i class="bi bi-flower1"></i> Giống lúa <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="riceVariety" required>
+                      <option value="" selected disabled>-- Chọn giống lúa --</option>
+                      <option value="Nàng hoa 9">Nàng hoa 9</option>
+                      <option value="Jasmine 85">Jasmine 85</option>
+                      <option value="ST25">ST25 (Gạo ngon nhất thế giới)</option>
+                      <option value="OM18">OM18</option>
+                      <option value="Nếp cái hoa vàng">Nếp cái hoa vàng</option>
+                      <option value="IR50404">IR50404</option>
+                      <option value="Khác">Khác</option>
+                    </select>
+                  </div>
+
+                  <!-- Khu vực trồng -->
+                  <div class="mb-3">
+                    <label for="location" class="form-label">
+                      <i class="bi bi-geo-alt"></i> Khu vực trồng <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" class="form-control" id="location"
+                      placeholder="VD: Xã Tân Phú, Huyện Vĩnh Cửu, Tỉnh Đồng Nai" required>
+                  </div>
+
+                  <!-- Diện tích -->
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="area" class="form-label">
+                        <i class="bi bi-bounding-box"></i> Diện tích (ha) <span class="text-danger">*</span>
+                      </label>
+                      <input type="number" class="form-control" id="area" placeholder="VD: 2.5" step="0.1" min="0.1"
+                        required>
+                    </div>
+
+                    <!-- Ngày gieo trồng -->
+                    <div class="col-md-6 mb-3">
+                      <label for="plantDate" class="form-label">
+                        <i class="bi bi-calendar"></i> Ngày gieo trồng <span class="text-danger">*</span>
+                      </label>
+                      <input type="date" class="form-control" id="plantDate" required>
+                    </div>
+                  </div>
+
+                  <!-- Ghi chú -->
+                  <div class="mb-3">
+                    <label for="batchNote" class="form-label">
+                      <i class="bi bi-sticky"></i> Ghi chú
+                    </label>
+                    <textarea class="form-control" id="batchNote" rows="3"
+                      placeholder="Thông tin bổ sung về lô sản phẩm..."></textarea>
+                  </div>
+
+                  <!-- Token ID display (sẽ được sinh tự động) -->
+                  <div class="mb-3" id="tokenIdDisplay" style="display:none;">
+                    <div class="alert alert-success">
+                      <h6><i class="bi bi-key"></i> Token ID đã được tạo:</h6>
+                      <code id="generatedTokenId" class="fs-6"></code>
+                      <button type="button" class="btn btn-sm btn-outline-success float-end" onclick="copyTokenId()">
+                        <i class="bi bi-clipboard"></i> Sao chép
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Nút submit -->
+                  <div class="d-grid gap-2">
+                    <button type="submit" class="modern-btn btn-lg">
+                      <i class="bi bi-save"></i> Ghi nhận sự kiện
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAB 2: GHI NHẬN SỰ KIỆN (UC3) ===== -->
+      <div class="tab-pane fade" id="event" role="tabpanel">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="modern-card">
+              <div class="card-header text-white"
+                style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; border-radius: 20px 20px 0 0;">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-event"></i> Ghi nhận sự kiện chuỗi cung ứng</h5>
+              </div>
+              <div class="card-body p-4">
+                <form id="eventForm">
+                  <!-- Chọn Token ID -->
+                  <div class="mb-3">
+                    <label for="tokenId" class="form-label">
+                      <i class="bi bi-key"></i> Token ID / Mã lô <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="tokenId" required>
+                      <option value="" selected disabled>-- Chọn lô sản phẩm --</option>
+                      <!-- Sẽ được load từ localStorage hoặc dữ liệu mẫu -->
+                    </select>
+                    <small class="text-muted">Hoặc nhập mã lô thủ công nếu không tìm thấy</small>
+                  </div>
+
+                  <!-- Loại sự kiện -->
+                  <div class="mb-3">
+                    <label for="eventType" class="form-label">
+                      <i class="bi bi-tags"></i> Loại sự kiện <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="eventType" required>
+                      <option value="" selected disabled>-- Chọn loại sự kiện --</option>
+                      <option value="fertilizing">🌱 Bón phân</option>
+                      <option value="irrigation">💧 Tưới tiêu</option>
+                      <option value="harvesting">🌾 Thu hoạch</option>
+                      <option value="milling">🏭 Xay xát</option>
+                      <option value="packaging">📦 Đóng gói</option>
+                      <option value="shipping">🚚 Vận chuyển</option>
+                      <option value="warehouse_in">📥 Nhập kho</option>
+                      <option value="warehouse_out">📤 Xuất kho</option>
+                      <option value="quality_check">✅ Kiểm tra chất lượng</option>
+                      <option value="distribution">🏪 Phân phối</option>
+                    </select>
+                  </div>
+
+                  <!-- Thời gian sự kiện -->
+                  <div class="mb-3">
+                    <label for="eventTime" class="form-label">
+                      <i class="bi bi-clock"></i> Thời gian thực hiện <span class="text-danger">*</span>
+                    </label>
+                    <input type="datetime-local" class="form-control" id="eventTime" required>
+                  </div>
+
+                  <!-- Địa điểm -->
+                  <div class="mb-3">
+                    <label for="eventLocation" class="form-label">
+                      <i class="bi bi-geo"></i> Địa điểm
+                    </label>
+                    <input type="text" class="form-control" id="eventLocation"
+                      placeholder="VD: Nhà máy xay xát ABC, Đồng Nai">
+                  </div>
+
+                  <!-- Người thực hiện -->
+                  <div class="mb-3">
+                    <label for="eventPerformer" class="form-label">
+                      <i class="bi bi-person"></i> Người thực hiện
+                    </label>
+                    <input type="text" class="form-control" id="eventPerformer"
+                      placeholder="Tên người/đơn vị thực hiện">
+                  </div>
+
+                  <!-- Mô tả chi tiết -->
+                  <div class="mb-3">
+                    <label for="eventDescription" class="form-label">
+                      <i class="bi bi-card-text"></i> Mô tả chi tiết <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" id="eventDescription" rows="4"
+                      placeholder="Mô tả chi tiết về sự kiện này..." required></textarea>
+                  </div>
+
+                  <!-- Nút submit -->
+                  <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">
+                      <i class="bi bi-send"></i> Ghi nhận sự kiện
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Lịch sử sự kiện đã ghi nhận -->
+            <div class="card shadow mt-4">
+              <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="bi bi-clock-history"></i> Sự kiện đã ghi nhận gần đây</h6>
+              </div>
+              <div class="card-body">
+                <div id="recentEvents" class="list-group">
+                  <!-- Danh sách sự kiện sẽ được thêm bởi JS -->
+                  <div class="text-center text-muted py-3">
+                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                    <p class="mb-0 mt-2">Chưa có sự kiện nào được ghi nhận</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="successToast" class="toast" role="alert">
+      <div class="toast-header bg-success text-white">
+        <i class="bi bi-check-circle me-2"></i>
+        <strong class="me-auto">Thành công</strong>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body" id="toastMessage">
+        Sự kiện đã được ghi nhận lên blockchain (mô phỏng)
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // ===== CHECK LOGIN =====
+    window.addEventListener('DOMContentLoaded', () => {
+      const userRole = localStorage.getItem('userRole');
+      const username = localStorage.getItem('username');
+
+      if (!userRole) {
+        alert('Bạn cần đăng nhập!');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Hiển thị tên người dùng
+      if (username) {
+        document.getElementById('userDisplayName').textContent = username;
+      }
+
+      // Set ngày hiện tại cho các input date
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('plantDate').value = today;
+
+      const now = new Date().toISOString().slice(0, 16);
+      document.getElementById('eventTime').value = now;
+
+      // Load token IDs có sẵn
+      loadTokenIds();
+
+      // Load recent events
+      loadRecentEvents();
+    });
+
+    // ===== LOGOUT =====
+    function logout() {
+      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('username');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // ===== UC2: TẠO LÔ SẢN PHẨM MỚI =====
+    document.getElementById('createBatchForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const variety = document.getElementById('riceVariety').value;
+      const location = document.getElementById('location').value;
+      const area = document.getElementById('area').value;
+      const plantDate = document.getElementById('plantDate').value;
+      const note = document.getElementById('batchNote').value;
+
+      // Sinh Token ID (hash mô phỏng)
+      const tokenId = generateTokenId(variety, location, plantDate);
+
+      // Lưu vào localStorage
+      const batch = {
+        tokenId: tokenId,
+        variety: variety,
+        location: location,
+        area: area,
+        plantDate: plantDate,
+        note: note,
+        creator: localStorage.getItem('username') || 'Unknown',
+        createdAt: new Date().toISOString(),
+        status: 'Đang canh tác'
+      };
+
+      // Lấy danh sách lô hiện tại
+      let batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
+      batches.push(batch);
+      localStorage.setItem('riceBatches', JSON.stringify(batches));
+
+      // Hiển thị Token ID
+      document.getElementById('generatedTokenId').textContent = tokenId;
+      document.getElementById('tokenIdDisplay').style.display = 'block';
+
+      // Hiển thị thông báo
+      showToast(`✅ Lô sản phẩm đã được tạo thành công!\n\nToken ID: ${tokenId}\n\n🔗 Giao dịch đã được ghi nhận trên blockchain (mô phỏng).`);
+
+      // Reset form sau 3s
+      setTimeout(() => {
+        this.reset();
+        document.getElementById('tokenIdDisplay').style.display = 'none';
+        loadTokenIds(); // Reload danh sách
+      }, 3000);
+    });
+
+    // ===== SINH TOKEN ID MÔ PHỎNG =====
+    function generateTokenId(variety, location, date) {
+      const timestamp = new Date().getTime();
+      const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const hash = simpleHash(variety + location + date + timestamp);
+      return `BC${hash}${random}`;
+    }
+
+    // Hash đơn giản (mô phỏng)
+    function simpleHash(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(16).substring(0, 6).toUpperCase();
+    }
+
+    // ===== COPY TOKEN ID =====
+    function copyTokenId() {
+      const tokenId = document.getElementById('generatedTokenId').textContent;
+      navigator.clipboard.writeText(tokenId).then(() => {
+        alert('✅ Đã sao chép Token ID vào clipboard!');
+      });
+    }
+
+    // ===== UC3: GHI NHẬN SỰ KIỆN =====
+    document.getElementById('eventForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const tokenId = document.getElementById('tokenId').value;
+      const eventType = document.getElementById('eventType').value;
+      const eventTime = document.getElementById('eventTime').value;
+      const eventLocation = document.getElementById('eventLocation').value;
+      const eventPerformer = document.getElementById('eventPerformer').value;
+      const eventDescription = document.getElementById('eventDescription').value;
+
+      // Tạo sự kiện
+      const event = {
+        tokenId: tokenId,
+        type: eventType,
+        typeName: document.getElementById('eventType').selectedOptions[0].text,
+        time: eventTime,
+        location: eventLocation,
+        performer: eventPerformer || localStorage.getItem('username') || 'Unknown',
+        description: eventDescription,
+        recordedAt: new Date().toISOString(),
+        blockHash: '0x' + Math.random().toString(16).substring(2, 12)
+      };
+
+      // Lưu vào localStorage
+      let events = JSON.parse(localStorage.getItem('riceEvents') || '[]');
+      events.unshift(event); // Thêm vào đầu mảng
+      localStorage.setItem('riceEvents', JSON.stringify(events));
+
+      // Hiển thị thông báo
+      showToast(`✅ Sự kiện đã được ghi nhận lên blockchain (mô phỏng)!\n\nLoại: ${event.typeName}\nToken ID: ${tokenId}\nBlock Hash: ${event.blockHash}`);
+
+      // Reset form
+      this.reset();
+
+      // Reload recent events
+      loadRecentEvents();
+    });
+
+    // ===== LOAD TOKEN IDs =====
+    function loadTokenIds() {
+      const batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
+      const select = document.getElementById('tokenId');
+
+      // Xóa các option cũ (trừ option đầu tiên)
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Thêm các token ID
+      batches.forEach(batch => {
+        const option = document.createElement('option');
+        option.value = batch.tokenId;
+        option.textContent = `${batch.tokenId} - ${batch.variety}`;
+        select.appendChild(option);
+      });
+
+      // Thêm option mẫu nếu chưa có dữ liệu
+      if (batches.length === 0) {
+        ['BC001ABC', 'BC002XYZ', 'BC003DEF'].forEach(id => {
+          const option = document.createElement('option');
+          option.value = id;
+          option.textContent = id + ' (Mẫu)';
+          select.appendChild(option);
+        });
+      }
+    }
+
+    // ===== LOAD RECENT EVENTS =====
+    function loadRecentEvents() {
+      const events = JSON.parse(localStorage.getItem('riceEvents') || '[]');
+      const container = document.getElementById('recentEvents');
+
+      if (events.length === 0) {
+        container.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                        <p class="mb-0 mt-2">Chưa có sự kiện nào được ghi nhận</p>
+                    </div>
+                `;
+        return;
+      }
+
+      container.innerHTML = '';
+      events.slice(0, 5).forEach(event => {
+        const item = document.createElement('div');
+        item.className = 'list-group-item';
+        item.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">${event.typeName}</h6>
+                            <p class="mb-1 small">${event.description}</p>
+                            <small class="text-muted">
+                                <i class="bi bi-key"></i> ${event.tokenId} | 
+                                <i class="bi bi-clock"></i> ${new Date(event.time).toLocaleString('vi-VN')} |
+                                <i class="bi bi-hash"></i> ${event.blockHash}
+                            </small>
+                        </div>
+                        <span class="badge bg-success">Đã ghi nhận</span>
+                    </div>
+                `;
+        container.appendChild(item);
+      });
+    }
+
+    // ===== SHOW TOAST =====
+    function showToast(message) {
+      document.getElementById('toastMessage').textContent = message;
+      const toast = new bootstrap.Toast(document.getElementById('successToast'));
+      toast.show();
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Quản Lý Hệ Thống</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <!-- Chart.js for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css?v=4.0">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .wrapper {
+      display: block !important;
+      width: 100% !important;
+      position: relative !important;
+    }
+
+    .sidebar-header h4 {
+      background: linear-gradient(135deg, #52b788 0%, #95d5b2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+    }
+
+    .sidebar .list-unstyled li.active a {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .sidebar .list-unstyled li a:hover {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      transform: translateX(5px);
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(40, 167, 69, 0.2);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chart-card {
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .table-card {
+      animation: fadeInUp 1s ease-out;
+    }
+
+    /* Navbar Enhancements */
+    .navbar-gradient {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 999 !important;
+      width: 100% !important;
+      left: 0 !important;
+    }
+
+    #content {
+      margin-left: 250px !important;
+      width: auto !important;
+      min-height: 100vh !important;
+    }
+
+    #content.active {
+      margin-left: 0 !important;
+    }
+
+    .sidebar.active {
+      left: -250px !important;
+    }
+
+    .navbar-gradient .btn-light:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3) !important;
+    }
+
+    .navbar-gradient .btn-light:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes iconFloat {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+      }
+    }
+
+    /* Dropdown improvements */
+    .dropdown-menu {
+      border: 1px solid rgba(40, 167, 69, 0.1);
+    }
+
+    .dropdown-item:hover {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      transform: translateX(5px);
+      color: #1e7e34;
+    }
+
+    .dropdown-item.text-danger:hover {
+      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+      color: #c62828 !important;
+    }
+
+    /* Bell notification animation */
+    .btn .bi-bell {
+      animation: bellRing 2s ease-in-out infinite;
+    }
+
+    @keyframes bellRing {
+
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+
+      10%,
+      30% {
+        transform: rotate(-10deg);
+      }
+
+      20%,
+      40% {
+        transform: rotate(10deg);
+      }
+
+      50%,
+      100% {
+        transform: rotate(0deg);
+      }
+    }
+
+    /* Sidebar toggle button */
+    #sidebarCollapse:hover i {
+      transform: rotate(90deg);
+      transition: transform 0.3s ease;
+    }
+
+    /* Sidebar Modern Styling */
+    .sidebar {
+      background: linear-gradient(180deg, #1a4d2e 0%, #2d6a4f 50%, #1a4d2e 100%);
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+      position: fixed !important;
+      left: 0 !important;
+      top: 0 !important;
+      height: 100vh !important;
+      width: 250px !important;
+      z-index: 998 !important;
+      overflow: hidden;
+      overflow-y: auto;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .sidebar-header {
+      background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(32, 201, 151, 0.2) 100%);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0 0 20px 20px;
+      animation: slideInLeft 0.6s ease-out;
+    }
+
+    .sidebar-header h4 {
+      background: linear-gradient(135deg, #52b788 0%, #95d5b2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      text-shadow: none;
+      animation: gradientShift 3s ease infinite;
+    }
+
+    @keyframes gradientShift {
+
+      0%,
+      100% {
+        filter: hue-rotate(0deg);
+      }
+
+      50% {
+        filter: hue-rotate(10deg);
+      }
+    }
+
+    .sidebar-header i {
+      color: #95d5b2;
+      animation: iconFloat 3s ease-in-out infinite;
+      font-size: 1.8rem;
+    }
+
+    .sidebar .list-unstyled.components>li {
+      margin-bottom: 8px;
+      animation: fadeInLeft 0.5s ease-out backwards;
+    }
+
+    .sidebar .list-unstyled.components>li:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .sidebar .list-unstyled.components>li:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .sidebar .list-unstyled.components>li:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .sidebar .list-unstyled.components>li:nth-child(4) {
+      animation-delay: 0.4s;
+    }
+
+    .sidebar .list-unstyled.components>li:nth-child(5) {
+      animation-delay: 0.5s;
+    }
+
+    @keyframes fadeInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .sidebar .list-unstyled li a {
+      padding: 14px 18px;
+      display: block;
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border-radius: 12px;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid transparent;
+    }
+
+    .sidebar .list-unstyled li a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.6s;
+    }
+
+    .sidebar .list-unstyled li a:hover::before {
+      left: 100%;
+    }
+
+    .sidebar .list-unstyled li a i {
+      margin-right: 12px;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      color: #95d5b2;
+    }
+
+    .sidebar .list-unstyled li a:hover {
+      background: linear-gradient(135deg, rgba(40, 167, 69, 0.3) 0%, rgba(32, 201, 151, 0.3) 100%);
+      transform: translateX(8px);
+      color: white;
+      border-color: rgba(149, 213, 178, 0.3);
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    }
+
+    .sidebar .list-unstyled li a:hover i {
+      transform: scale(1.2) rotate(5deg);
+      color: #c8e6c9;
+    }
+
+    .sidebar .list-unstyled li.active a {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+      color: white;
+      font-weight: 700;
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
+
+    .sidebar .list-unstyled li.active a i {
+      color: white;
+      animation: iconPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.15);
+      }
+    }
+
+    /* Submenu styling */
+    .sidebar .list-unstyled ul.collapse li a {
+      padding: 10px 18px 10px 50px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar .list-unstyled ul.collapse li a:hover {
+      background: rgba(40, 167, 69, 0.2);
+      border-left-color: #28a745;
+      color: #c8e6c9;
+      transform: translateX(5px);
+    }
+
+    /* Sidebar footer button */
+    .sidebar-footer {
+      border-top: 2px solid rgba(255, 255, 255, 0.1);
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.3) 100%);
+    }
+
+    .sidebar-footer .modern-btn {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      font-weight: 700;
+      padding: 12px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .sidebar-footer .modern-btn:hover {
+      background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(220, 53, 69, 0.5);
+    }
+
+    .sidebar-footer .modern-btn i {
+      font-size: 1.1rem;
+      margin-right: 8px;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        left: -250px !important;
+      }
+
+      .sidebar.active {
+        left: 0 !important;
+      }
+
+      #content {
+        margin-left: 0 !important;
+      }
+
+      #content.active {
+        margin-left: 250px !important;
+      }
+
+      .navbar-brand {
+        font-size: 1rem !important;
+      }
+
+      .navbar-brand i {
+        font-size: 1.3rem !important;
+      }
+
+      .ms-auto .gap-3 {
+        gap: 0.5rem !important;
+      }
+
+      .btn-light {
+        width: 38px !important;
+        height: 38px !important;
+        padding: 0 !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <!-- ===== SIDEBAR ===== -->
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-header p-3">
+        <h4><i class="bi bi-box-seam"></i> Rice Chain</h4>
+        <small class="text-white-50">Blockchain System</small>
+      </div>
+
+      <ul class="list-unstyled components p-3">
+        <li class="active">
+          <a href="#"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        </li>
+        <li>
+          <a href="#userManagement" data-bs-toggle="collapse">
+            <i class="bi bi-people"></i> Quản lý người dùng
+          </a>
+          <ul class="collapse list-unstyled" id="userManagement">
+            <li><a href="#" onclick="showAddUserModal()">+ Thêm người dùng</a></li>
+            <li><a href="#" onclick="showUserList()">Danh sách người dùng</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#"><i class="bi bi-box"></i> Quản lý lô gạo</a>
+        </li>
+        <li>
+          <a href="#"><i class="bi bi-graph-up"></i> Báo cáo</a>
+        </li>
+        <li>
+          <a href="#"><i class="bi bi-gear"></i> Cài đặt</a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer p-3 mt-auto">
+        <button class="modern-btn btn w-100" onclick="logout()">
+          <i class="bi bi-box-arrow-left"></i> Đăng xuất
+        </button>
+      </div>
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div id="content">
+      <!-- NAVBAR TOP -->
+      <nav class="navbar navbar-expand-lg navbar-gradient shadow-lg"
+        style="backdrop-filter: blur(10px); background: linear-gradient(135deg, rgba(40, 167, 69, 0.95) 0%, rgba(32, 201, 151, 0.95) 100%); border-bottom: 3px solid rgba(255, 255, 255, 0.2);">
+        <div class="container-fluid">
+          <button type="button" id="sidebarCollapse" class="btn btn-light"
+            style="border-radius: 12px; padding: 10px 18px; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <i class="bi bi-list" style="font-size: 1.3rem; color: #28a745;"></i>
+          </button>
+
+          <span class="navbar-brand ms-3 mb-0 h1 text-white"
+            style="font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); animation: slideInLeft 0.6s ease-out;">
+            <i class="bi bi-speedometer2" style="font-size: 1.8rem; animation: iconFloat 3s ease-in-out infinite;"></i>
+            Dashboard Admin
+          </span>
+
+          <div class="ms-auto d-flex align-items-center gap-3">
+            <!-- Notification Bell -->
+            <button class="btn btn-light position-relative"
+              style="border-radius: 50%; width: 45px; height: 45px; padding: 0; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+              <i class="bi bi-bell" style="font-size: 1.2rem; color: #28a745;"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                style="font-size: 0.65rem; animation: pulse 2s ease-in-out infinite;">
+                3
+              </span>
+            </button>
+
+            <!-- User Dropdown -->
+            <div class="dropdown">
+              <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                style="border-radius: 25px; padding: 8px 20px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <i class="bi bi-person-circle" style="font-size: 1.3rem; color: #28a745;"></i> <span
+                  id="userDisplayName">Admin</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-lg"
+                style="border-radius: 15px; border: none; overflow: hidden; animation: fadeInUp 0.3s ease-out;">
+                <li><a class="dropdown-item py-2" href="#" style="transition: all 0.3s ease;"><i
+                      class="bi bi-person text-success"></i> Hồ sơ</a></li>
+                <li><a class="dropdown-item py-2" href="#" style="transition: all 0.3s ease;"><i
+                      class="bi bi-gear text-success"></i> Cài đặt</a></li>
+                <li>
+                  <hr class="dropdown-divider my-1">
+                </li>
+                <li><a class="dropdown-item py-2 text-danger" href="#" onclick="logout()"
+                    style="transition: all 0.3s ease;"><i class="bi bi-box-arrow-left"></i> Đăng xuất</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- MAIN DASHBOARD CONTENT -->
+      <div class="container-fluid p-4">
+        <!-- Tiêu đề -->
+        <div class="row mb-4">
+          <div class="col">
+            <h2 class="fw-bold">Tổng quan hệ thống</h2>
+            <p class="text-muted">Cập nhật lúc: <span id="updateTime"></span></p>
+          </div>
+        </div>
+
+        <!-- ===== STATISTICS CARDS ===== -->
+        <div class="row mb-4">
+          <!-- Card 1: Tổng người dùng -->
+          <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card shadow h-100 p-3">
+              <div class="row align-items-center">
+                <div class="col">
+                  <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                    Tổng người dùng
+                  </div>
+                  <div class="h5 mb-0 fw-bold text-dark">234 người</div>
+                </div>
+                <div class="col-auto">
+                  <i class="bi bi-people text-success" style="font-size: 2.5rem;"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Lô gạo đang hoạt động -->
+          <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card shadow h-100 p-3" style="animation-delay: 0.1s;">
+              <div class="row align-items-center">
+                <div class="col">
+                  <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                    Lô gạo hoạt động
+                  </div>
+                  <div class="h5 mb-0 fw-bold text-dark">48 lô</div>
+                </div>
+                <div class="col-auto">
+                  <i class="bi bi-box-seam text-success" style="font-size: 2.5rem;"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Giao dịch hôm nay -->
+          <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card shadow h-100 p-3" style="animation-delay: 0.2s;">
+              <div class="row align-items-center">
+                <div class="col">
+                  <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                    Giao dịch hôm nay
+                  </div>
+                  <div class="h5 mb-0 fw-bold text-dark">152 GD</div>
+                </div>
+                <div class="col-auto">
+                  <i class="bi bi-arrow-left-right text-success" style="font-size: 2.5rem;"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Khối blockchain mới nhất -->
+          <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card shadow h-100 p-3" style="animation-delay: 0.3s;">
+              <div class="row align-items-center">
+                <div class="col">
+                  <div class="text-xs fw-bold text-success text-uppercase mb-1">
+                    Block mới nhất
+                  </div>
+                  <div class="h5 mb-0 fw-bold text-dark">#12,847</div>
+                </div>
+                <div class="col-auto">
+                  <i class="bi bi-boxes text-success" style="font-size: 2.5rem;"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== CHARTS ROW ===== -->
+        <div class="row mb-4 chart-card">
+          <!-- Biểu đồ phân bố người dùng -->
+          <div class="col-lg-6 mb-3">
+            <div class="card shadow">
+              <div class="card-header bg-success text-white">
+                <h6 class="m-0"><i class="bi bi-pie-chart"></i> Phân bố người dùng theo vai trò</h6>
+              </div>
+              <div class="card-body">
+                <canvas id="userRoleChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Biểu đồ giao dịch -->
+          <div class="col-lg-6 mb-3">
+            <div class="card shadow">
+              <div class="card-header bg-success text-white">
+                <h6 class="m-0"><i class="bi bi-bar-chart"></i> Giao dịch 7 ngày qua</h6>
+              </div>
+              <div class="card-body">
+                <canvas id="transactionChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== BATCH LIST TABLE ===== -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card shadow">
+              <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-table"></i> Danh sách lô gạo</h5>
+                <button class="btn btn-success btn-sm" onclick="showAddBatchModal()">
+                  <i class="bi bi-plus-circle"></i> Thêm lô mới
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover" id="batchTable">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Token ID</th>
+                        <th>Giống lúa</th>
+                        <th>Người tạo</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody id="batchTableBody">
+                      <!-- Dữ liệu mẫu sẽ được tạo bởi JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== RECENT TRANSACTIONS ===== -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card shadow">
+              <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Giao dịch blockchain gần nhất</h5>
+              </div>
+              <div class="card-body">
+                <div class="list-group" id="recentTransactions">
+                  <!-- Giao dịch mẫu sẽ được tạo bởi JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL XEM CHI TIẾT LÔ ===== -->
+  <div class="modal fade" id="viewBatchModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title"><i class="bi bi-eye"></i> Chi tiết lô sản phẩm</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong><i class="bi bi-key"></i> Token ID:</strong>
+              <p class="mb-0"><code id="viewTokenId">-</code></p>
+            </div>
+            <div class="col-md-6">
+              <strong><i class="bi bi-calendar"></i> Ngày tạo:</strong>
+              <p class="mb-0" id="viewCreatedDate">-</p>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong><i class="bi bi-flower1"></i> Giống lúa:</strong>
+              <p class="mb-0" id="viewVariety">-</p>
+            </div>
+            <div class="col-md-6">
+              <strong><i class="bi bi-person"></i> Người tạo:</strong>
+              <p class="mb-0" id="viewCreator">-</p>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong><i class="bi bi-geo-alt"></i> Khu vực:</strong>
+              <p class="mb-0" id="viewLocation">-</p>
+            </div>
+            <div class="col-md-6">
+              <strong><i class="bi bi-bounding-box"></i> Diện tích:</strong>
+              <p class="mb-0" id="viewArea">-</p>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-12">
+              <strong><i class="bi bi-flag"></i> Trạng thái:</strong>
+              <p class="mb-0"><span id="viewStatus" class="badge bg-success">-</span></p>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-12">
+              <strong><i class="bi bi-sticky"></i> Ghi chú:</strong>
+              <p class="mb-0" id="viewNote">-</p>
+            </div>
+          </div>
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> <strong>Blockchain Hash:</strong>
+            <code id="viewBlockHash" class="d-block mt-2">0x...</code>
+          </div>
+          <div class="text-center">
+            <a href="#" id="viewTraceabilityLink" class="btn btn-success" target="_blank">
+              <i class="bi bi-qr-code-scan"></i> Xem lịch sử truy xuất
+            </a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL CHỈNH SỬA LÔ ===== -->
+  <div class="modal fade" id="editBatchModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title"><i class="bi bi-pencil"></i> Chỉnh sửa lô sản phẩm</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editBatchForm">
+            <input type="hidden" id="editTokenId">
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-key"></i> Token ID</label>
+                <input type="text" class="form-control" id="editTokenIdDisplay" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-flower1"></i> Giống lúa</label>
+                <select class="form-select" id="editVariety" required>
+                  <option value="Nàng hoa 9">Nàng hoa 9</option>
+                  <option value="Jasmine 85">Jasmine 85</option>
+                  <option value="ST25">ST25</option>
+                  <option value="OM18">OM18</option>
+                  <option value="Nếp cái hoa vàng">Nếp cái hoa vàng</option>
+                  <option value="IR50404">IR50404</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-geo-alt"></i> Khu vực trồng</label>
+              <input type="text" class="form-control" id="editLocation" required>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-bounding-box"></i> Diện tích (ha)</label>
+                <input type="number" class="form-control" id="editArea" step="0.1" min="0.1" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label"><i class="bi bi-flag"></i> Trạng thái</label>
+                <select class="form-select" id="editStatus">
+                  <option value="Đang canh tác">Đang canh tác</option>
+                  <option value="Đã thu hoạch">Đã thu hoạch</option>
+                  <option value="Đang xay xát">Đang xay xát</option>
+                  <option value="Đã đóng gói">Đã đóng gói</option>
+                  <option value="Đang vận chuyển">Đang vận chuyển</option>
+                  <option value="Trong kho">Trong kho</option>
+                  <option value="Đã phân phối">Đã phân phối</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label"><i class="bi bi-sticky"></i> Ghi chú</label>
+              <textarea class="form-control" id="editNote" rows="3"></textarea>
+            </div>
+
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle"></i>
+              <strong>Lưu ý:</strong> Mọi thay đổi sẽ được ghi nhận trên blockchain và không thể hoàn tác.
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-success" onclick="saveBatchChanges()">
+            <i class="bi bi-save"></i> Lưu thay đổi
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL THÊM NGƯỜI DÙNG (UC1) ===== -->
+  <div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title"><i class="bi bi-person-plus"></i> Thêm người dùng mới</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addUserForm">
+            <div class="mb-3">
+              <label class="form-label">Tên người dùng</label>
+              <input type="text" class="form-control" id="newUserName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="newUserEmail" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Vai trò</label>
+              <select class="form-select" id="newUserRole" required>
+                <option value="farmer">Nông dân</option>
+                <option value="mill">Nhà máy xay xát</option>
+                <option value="transport">Vận chuyển</option>
+                <option value="distributor">Nhà phân phối</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Trạng thái</label>
+              <select class="form-select" id="newUserStatus">
+                <option value="active">Kích hoạt</option>
+                <option value="inactive">Vô hiệu hóa</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-success" onclick="addUser()">
+            <i class="bi bi-check-circle"></i> Thêm người dùng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL DANH SÁCH NGƯỜI DÙNG ===== -->
+  <div class="modal fade" id="userListModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title"><i class="bi bi-people"></i> Danh sách người dùng</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Search and filter -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="searchUser" placeholder="🔍 Tìm kiếm theo tên, email...">
+            </div>
+            <div class="col-md-4">
+              <select class="form-select" id="filterRole">
+                <option value="">-- Tất cả vai trò --</option>
+                <option value="admin">Admin</option>
+                <option value="farmer">Nông dân</option>
+                <option value="mill">Nhà máy xay xát</option>
+                <option value="transport">Vận chuyển</option>
+                <option value="distributor">Nhà phân phối</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select class="form-select" id="filterStatus">
+                <option value="">-- Tất cả --</option>
+                <option value="active">Kích hoạt</option>
+                <option value="inactive">Vô hiệu hóa</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- User table -->
+          <div class="table-responsive">
+            <table class="table table-hover table-striped">
+              <thead class="table-success">
+                <tr>
+                  <th>#</th>
+                  <th>Tên người dùng</th>
+                  <th>Email</th>
+                  <th>Vai trò</th>
+                  <th>Trạng thái</th>
+                  <th>Ngày tạo</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="userListTableBody">
+                <!-- Dữ liệu sẽ được thêm bởi JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <nav>
+            <ul class="pagination justify-content-center" id="userPagination">
+              <!-- Pagination sẽ được tạo bởi JS -->
+            </ul>
+          </nav>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" onclick="showAddUserModal()">
+            <i class="bi bi-plus-circle"></i> Thêm người dùng mới
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL CHI TIẾT NGƯỜI DÙNG ===== -->
+  <div class="modal fade" id="userDetailModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title"><i class="bi bi-person-badge"></i> Chi tiết người dùng</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-3">
+            <i class="bi bi-person-circle text-success" style="font-size: 5rem;"></i>
+          </div>
+          <div class="mb-3">
+            <strong><i class="bi bi-person"></i> Tên:</strong>
+            <p class="mb-0" id="detailUserName">-</p>
+          </div>
+          <div class="mb-3">
+            <strong><i class="bi bi-envelope"></i> Email:</strong>
+            <p class="mb-0" id="detailUserEmail">-</p>
+          </div>
+          <div class="mb-3">
+            <strong><i class="bi bi-briefcase"></i> Vai trò:</strong>
+            <p class="mb-0"><span id="detailUserRole" class="badge bg-success">-</span></p>
+          </div>
+          <div class="mb-3">
+            <strong><i class="bi bi-phone"></i> Số điện thoại:</strong>
+            <p class="mb-0" id="detailUserPhone">-</p>
+          </div>
+          <div class="mb-3">
+            <strong><i class="bi bi-geo-alt"></i> Địa chỉ:</strong>
+            <p class="mb-0" id="detailUserAddress">-</p>
+          </div>
+          <div class="mb-3">
+            <strong><i class="bi bi-flag"></i> Trạng thái:</strong>
+            <p class="mb-0"><span id="detailUserStatus" class="badge">-</span></p>
+          </div>
+          <div class="mb-3">
+            <strong><i class="bi bi-calendar"></i> Ngày tạo:</strong>
+            <p class="mb-0" id="detailUserCreated">-</p>
+          </div>
+          <div class="alert alert-info">
+            <i class="bi bi-shield-check"></i> <strong>Blockchain ID:</strong>
+            <code id="detailUserBlockchainId" class="d-block mt-2">0x...</code>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // ===== CHECK LOGIN =====
+    window.addEventListener('DOMContentLoaded', () => {
+      const userRole = localStorage.getItem('userRole');
+      const username = localStorage.getItem('username');
+
+      // Kiểm tra đăng nhập
+      if (!userRole || userRole !== 'admin') {
+        alert('Bạn cần đăng nhập với quyền Admin!');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Hiển thị tên người dùng
+      if (username) {
+        document.getElementById('userDisplayName').textContent = username;
+      }
+
+      // Hiển thị thời gian cập nhật
+      updateTime();
+      setInterval(updateTime, 1000);
+
+      // Khởi tạo dữ liệu
+      initCharts();
+      loadBatchData();
+      loadRecentTransactions();
+    });
+
+    // ===== UPDATE TIME =====
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('updateTime').textContent = now.toLocaleString('vi-VN');
+    }
+
+    // ===== SIDEBAR TOGGLE =====
+    document.getElementById('sidebarCollapse').addEventListener('click', function () {
+      document.getElementById('sidebar').classList.toggle('active');
+    });
+
+    // ===== LOGOUT =====
+    function logout() {
+      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('username');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // ===== INIT CHARTS =====
+    function initCharts() {
+      // Biểu đồ tròn - Phân bố người dùng
+      const ctx1 = document.getElementById('userRoleChart').getContext('2d');
+      new Chart(ctx1, {
+        type: 'pie',
+        data: {
+          labels: ['Nông dân', 'Nhà máy', 'Vận chuyển', 'Phân phối', 'Admin'],
+          datasets: [{
+            data: [85, 42, 28, 65, 14],
+            backgroundColor: [
+              '#28a745',
+              '#ffc107',
+              '#17a2b8',
+              '#6f42c1',
+              '#dc3545'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+
+      // Biểu đồ cột - Giao dịch 7 ngày
+      const ctx2 = document.getElementById('transactionChart').getContext('2d');
+      new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+          datasets: [{
+            label: 'Số giao dịch',
+            data: [125, 142, 138, 156, 148, 152, 145],
+            backgroundColor: '#28a745'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    // ===== LOAD BATCH DATA =====
+    function loadBatchData() {
+      const batches = [
+        { id: 'BC001', variety: 'Nàng hoa 9', creator: 'Nguyễn Văn A', status: 'Đang canh tác', date: '2025-11-01' },
+        { id: 'BC002', variety: 'Jasmine 85', creator: 'Trần Thị B', status: 'Đã thu hoạch', date: '2025-10-25' },
+        { id: 'BC003', variety: 'ST25', creator: 'Lê Văn C', status: 'Đang xay xát', date: '2025-10-20' },
+        { id: 'BC004', variety: 'Nếp cái hoa vàng', creator: 'Phạm Văn D', status: 'Đang vận chuyển', date: '2025-10-18' },
+        { id: 'BC005', variety: 'OM18', creator: 'Hoàng Thị E', status: 'Đã phân phối', date: '2025-10-10' }
+      ];
+
+      const tbody = document.getElementById('batchTableBody');
+      tbody.innerHTML = '';
+
+      batches.forEach(batch => {
+        const statusClass = {
+          'Đang canh tác': 'warning',
+          'Đã thu hoạch': 'info',
+          'Đang xay xát': 'primary',
+          'Đang vận chuyển': 'secondary',
+          'Đã phân phối': 'success'
+        }[batch.status] || 'secondary';
+
+        const row = `
+                    <tr>
+                        <td><code>${batch.id}</code></td>
+                        <td>${batch.variety}</td>
+                        <td>${batch.creator}</td>
+                        <td><span class="badge bg-${statusClass}">${batch.status}</span></td>
+                        <td>${batch.date}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewBatch('${batch.id}')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="editBatch('${batch.id}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+        tbody.innerHTML += row;
+      });
+    }
+
+    // ===== LOAD RECENT TRANSACTIONS =====
+    function loadRecentTransactions() {
+      const transactions = [
+        { hash: '0xd4e5...6789', type: 'Tạo lô mới', user: 'Nguyễn Văn A', time: '5 phút trước' },
+        { hash: '0xa3f2...4321', type: 'Ghi nhận thu hoạch', user: 'Trần Thị B', time: '12 phút trước' },
+        { hash: '0xb7c8...9012', type: 'Chuyển quyền sở hữu', user: 'Lê Văn C', time: '28 phút trước' },
+        { hash: '0xe9d1...5678', type: 'Cập nhật trạng thái', user: 'Phạm Văn D', time: '1 giờ trước' }
+      ];
+
+      const container = document.getElementById('recentTransactions');
+      container.innerHTML = '';
+
+      transactions.forEach(tx => {
+        const item = `
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">${tx.type}</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-hash"></i> ${tx.hash} | 
+                                    <i class="bi bi-person"></i> ${tx.user}
+                                </small>
+                            </div>
+                            <small class="text-muted">${tx.time}</small>
+                        </div>
+                    </div>
+                `;
+        container.innerHTML += item;
+      });
+    }
+
+    // ===== MODAL FUNCTIONS (UC1) =====
+    function showAddUserModal() {
+      const modal = new bootstrap.Modal(document.getElementById('addUserModal'));
+      modal.show();
+    }
+
+    function addUser() {
+      const name = document.getElementById('newUserName').value;
+      const email = document.getElementById('newUserEmail').value;
+      const role = document.getElementById('newUserRole').value;
+      const status = document.getElementById('newUserStatus').value;
+
+      if (!name || !email) {
+        alert('Vui lòng điền đầy đủ thông tin!');
+        return;
+      }
+
+      // Mô phỏng thêm người dùng vào blockchain
+      alert(`✅ Đã thêm người dùng mới vào hệ thống!\n\nTên: ${name}\nEmail: ${email}\nVai trò: ${role}\nTrạng thái: ${status}\n\n🔗 Giao dịch đã được ghi nhận trên blockchain.`);
+
+      // Đóng modal
+      bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+
+      // Reset form
+      document.getElementById('addUserForm').reset();
+    }
+
+    // ===== DỮ LIỆU NGƯỜI DÙNG MẪU =====
+    const dummyUsers = [
+      {
+        id: 'U001',
+        name: 'Nguyễn Ngọc Bình',
+        email: 'binh.nn.65cntt@ntu.edu.vn',
+        role: 'admin',
+        phone: '0384337239',
+        address: 'Khánh Hoà',
+        status: 'active',
+        createdAt: '2024-01-15T08:00:00',
+        blockchainId: '0x1a2b3c4d5e6f7890abcdef1234567890'
+      },
+      {
+        id: 'U002',
+        name: 'Trần Thị Quản Trị',
+        email: 'admin2@ricebsc.vn',
+        role: 'admin',
+        phone: '0902345678',
+        address: 'Hà Nội',
+        status: 'active',
+        createdAt: '2024-02-10T09:30:00',
+        blockchainId: '0x2b3c4d5e6f7890abcdef1234567890ab'
+      },
+      {
+        id: 'U003',
+        name: 'Lê Văn Nông',
+        email: 'farmer1@ricebsc.vn',
+        role: 'farmer',
+        phone: '0903456789',
+        address: 'Xã Tân Phú, Vĩnh Cửu, Đồng Nai',
+        status: 'active',
+        createdAt: '2024-03-05T07:00:00',
+        blockchainId: '0x3c4d5e6f7890abcdef1234567890abcd'
+      },
+      {
+        id: 'U004',
+        name: 'Phạm Thị Hoa',
+        email: 'farmer2@ricebsc.vn',
+        role: 'farmer',
+        phone: '0904567890',
+        address: 'An Giang',
+        status: 'active',
+        createdAt: '2024-03-20T08:15:00',
+        blockchainId: '0x4d5e6f7890abcdef1234567890abcdef'
+      },
+      {
+        id: 'U005',
+        name: 'Hoàng Văn Trồng',
+        email: 'farmer3@ricebsc.vn',
+        role: 'farmer',
+        phone: '0905678901',
+        address: 'Đồng Tháp',
+        status: 'active',
+        createdAt: '2024-04-12T06:45:00',
+        blockchainId: '0x5e6f7890abcdef1234567890abcdef12'
+      },
+      {
+        id: 'U006',
+        name: 'Võ Thị Lúa',
+        email: 'farmer4@ricebsc.vn',
+        role: 'farmer',
+        phone: '0906789012',
+        address: 'Cần Thơ',
+        status: 'inactive',
+        createdAt: '2024-04-25T09:00:00',
+        blockchainId: '0x6f7890abcdef1234567890abcdef1234'
+      },
+      {
+        id: 'U007',
+        name: 'Nguyễn Văn Xát',
+        email: 'mill1@ricebsc.vn',
+        role: 'mill',
+        phone: '0907890123',
+        address: 'KCN Long Đức, Đồng Nai',
+        status: 'active',
+        createdAt: '2024-05-08T10:30:00',
+        blockchainId: '0x7890abcdef1234567890abcdef123456'
+      },
+      {
+        id: 'U008',
+        name: 'Trần Thị Máy',
+        email: 'mill2@ricebsc.vn',
+        role: 'mill',
+        phone: '0908901234',
+        address: 'Bình Dương',
+        status: 'active',
+        createdAt: '2024-05-20T11:00:00',
+        blockchainId: '0x890abcdef1234567890abcdef1234567'
+      },
+      {
+        id: 'U009',
+        name: 'Lê Văn Chở',
+        email: 'transport1@ricebsc.vn',
+        role: 'transport',
+        phone: '0909012345',
+        address: 'Hồ Chí Minh',
+        status: 'active',
+        createdAt: '2024-06-01T07:30:00',
+        blockchainId: '0x90abcdef1234567890abcdef12345678'
+      },
+      {
+        id: 'U010',
+        name: 'Phạm Văn Vận',
+        email: 'transport2@ricebsc.vn',
+        role: 'transport',
+        phone: '0900123456',
+        address: 'Đồng Nai',
+        status: 'active',
+        createdAt: '2024-06-15T08:45:00',
+        blockchainId: '0x0abcdef1234567890abcdef123456789'
+      },
+      {
+        id: 'U011',
+        name: 'Hoàng Thị Phối',
+        email: 'dist1@ricebsc.vn',
+        role: 'distributor',
+        phone: '0911234567',
+        address: 'Siêu thị Big C, Hồ Chí Minh',
+        status: 'active',
+        createdAt: '2024-07-02T09:00:00',
+        blockchainId: '0xabcdef1234567890abcdef1234567890'
+      },
+      {
+        id: 'U012',
+        name: 'Nguyễn Văn Bán',
+        email: 'dist2@ricebsc.vn',
+        role: 'distributor',
+        phone: '0912345678',
+        address: 'Chợ Bến Thành, Hồ Chí Minh',
+        status: 'active',
+        createdAt: '2024-07-18T10:15:00',
+        blockchainId: '0xbcdef1234567890abcdef12345678901'
+      },
+      {
+        id: 'U013',
+        name: 'Trần Thị Hàng',
+        email: 'dist3@ricebsc.vn',
+        role: 'distributor',
+        phone: '0913456789',
+        address: 'Hà Nội',
+        status: 'inactive',
+        createdAt: '2024-08-05T11:30:00',
+        blockchainId: '0xcdef1234567890abcdef123456789012'
+      },
+      {
+        id: 'U014',
+        name: 'Lê Văn Nghỉ',
+        email: 'farmer5@ricebsc.vn',
+        role: 'farmer',
+        phone: '0914567890',
+        address: 'Long An',
+        status: 'inactive',
+        createdAt: '2024-09-01T06:00:00',
+        blockchainId: '0xdef1234567890abcdef1234567890123'
+      },
+      {
+        id: 'U015',
+        name: 'Võ Thị Xay',
+        email: 'mill3@ricebsc.vn',
+        role: 'mill',
+        phone: '0915678901',
+        address: 'Tiền Giang',
+        status: 'inactive',
+        createdAt: '2024-09-20T12:00:00',
+        blockchainId: '0xef1234567890abcdef12345678901234'
+      }
+    ];
+
+    // Biến lưu trạng thái lọc và phân trang
+    let currentPage = 1;
+    let usersPerPage = 10;
+    let filteredUsers = [...dummyUsers];
+
+    function showUserList() {
+      // Reset về trang đầu
+      currentPage = 1;
+      filteredUsers = [...dummyUsers];
+
+      // Hiển thị modal
+      const modal = new bootstrap.Modal(document.getElementById('userListModal'));
+      modal.show();
+
+      // Render bảng
+      renderUserTable();
+
+      // Gắn sự kiện tìm kiếm và lọc
+      document.getElementById('searchUser').addEventListener('input', filterUsers);
+      document.getElementById('filterRole').addEventListener('change', filterUsers);
+      document.getElementById('filterStatus').addEventListener('change', filterUsers);
+    }
+
+    // ===== LỌC NGƯỜI DÙNG =====
+    function filterUsers() {
+      const searchText = document.getElementById('searchUser').value.toLowerCase();
+      const roleFilter = document.getElementById('filterRole').value;
+      const statusFilter = document.getElementById('filterStatus').value;
+
+      filteredUsers = dummyUsers.filter(user => {
+        const matchSearch = user.name.toLowerCase().includes(searchText) ||
+          user.email.toLowerCase().includes(searchText);
+        const matchRole = !roleFilter || user.role === roleFilter;
+        const matchStatus = !statusFilter || user.status === statusFilter;
+
+        return matchSearch && matchRole && matchStatus;
+      });
+
+      currentPage = 1; // Reset về trang đầu khi lọc
+      renderUserTable();
+    }
+
+    // ===== HIỂN THỊ BẢNG NGƯỜI DÙNG =====
+    function renderUserTable() {
+      const tbody = document.getElementById('userListTableBody');
+      tbody.innerHTML = '';
+
+      // Tính toán phân trang
+      const startIndex = (currentPage - 1) * usersPerPage;
+      const endIndex = startIndex + usersPerPage;
+      const usersToShow = filteredUsers.slice(startIndex, endIndex);
+
+      // Hiển thị từng người dùng
+      usersToShow.forEach((user, index) => {
+        const row = document.createElement('tr');
+
+        // Chuyển đổi tên vai trò
+        const roleNames = {
+          'admin': 'Admin',
+          'farmer': 'Nông dân',
+          'mill': 'Nhà máy xay xát',
+          'transport': 'Vận chuyển',
+          'distributor': 'Nhà phân phối'
+        };
+
+        const statusBadge = user.status === 'active'
+          ? '<span class="badge bg-success">Kích hoạt</span>'
+          : '<span class="badge bg-secondary">Vô hiệu hóa</span>';
+
+        row.innerHTML = `
+          <td>${startIndex + index + 1}</td>
+          <td><i class="bi bi-person-circle text-success"></i> ${user.name}</td>
+          <td>${user.email}</td>
+          <td><span class="badge bg-success">${roleNames[user.role]}</span></td>
+          <td>${statusBadge}</td>
+          <td>${new Date(user.createdAt).toLocaleDateString('vi-VN')}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-success me-1" onclick="viewUserDetail('${user.id}')" title="Xem chi tiết">
+              <i class="bi bi-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-warning me-1" onclick="editUser('${user.id}')" title="Chỉnh sửa">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${user.id}')" title="Xóa">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+
+      // Render phân trang
+      renderPagination();
+    }
+
+    // ===== PHÂN TRANG =====
+    function renderPagination() {
+      const pagination = document.getElementById('userPagination');
+      pagination.innerHTML = '';
+
+      const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+      if (totalPages <= 1) return;
+
+      // Nút Previous
+      const prevLi = document.createElement('li');
+      prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+      prevLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">«</a>`;
+      pagination.appendChild(prevLi);
+
+      // Các số trang
+      for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>`;
+        pagination.appendChild(li);
+      }
+
+      // Nút Next
+      const nextLi = document.createElement('li');
+      nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextLi.innerHTML = `<a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">»</a>`;
+      pagination.appendChild(nextLi);
+    }
+
+    function changePage(page) {
+      const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+      if (page < 1 || page > totalPages) return;
+      currentPage = page;
+      renderUserTable();
+    }
+
+    // ===== XEM CHI TIẾT NGƯỜI DÙNG =====
+    function viewUserDetail(userId) {
+      const user = dummyUsers.find(u => u.id === userId);
+      if (!user) {
+        alert('Không tìm thấy người dùng!');
+        return;
+      }
+
+      // Hiển thị thông tin
+      document.getElementById('detailUserName').textContent = user.name;
+      document.getElementById('detailUserEmail').textContent = user.email;
+
+      const roleNames = {
+        'admin': 'Admin',
+        'farmer': 'Nông dân',
+        'mill': 'Nhà máy xay xát',
+        'transport': 'Vận chuyển',
+        'distributor': 'Nhà phân phối'
+      };
+      document.getElementById('detailUserRole').textContent = roleNames[user.role];
+      document.getElementById('detailUserPhone').textContent = user.phone;
+      document.getElementById('detailUserAddress').textContent = user.address;
+
+      const statusBadge = document.getElementById('detailUserStatus');
+      statusBadge.textContent = user.status === 'active' ? 'Kích hoạt' : 'Vô hiệu hóa';
+      statusBadge.className = user.status === 'active' ? 'badge bg-success' : 'badge bg-secondary';
+
+      document.getElementById('detailUserCreated').textContent = new Date(user.createdAt).toLocaleString('vi-VN');
+      document.getElementById('detailUserBlockchainId').textContent = user.blockchainId;
+
+      // Hiển thị modal chi tiết
+      const modal = new bootstrap.Modal(document.getElementById('userDetailModal'));
+      modal.show();
+    }
+
+    // ===== CHỈNH SỬA NGƯỜI DÙNG =====
+    function editUser(userId) {
+      const user = dummyUsers.find(u => u.id === userId);
+      if (!user) {
+        alert('Không tìm thấy người dùng!');
+        return;
+      }
+
+      // Đóng modal danh sách
+      const listModal = bootstrap.Modal.getInstance(document.getElementById('userListModal'));
+      if (listModal) listModal.hide();
+
+      // Điền thông tin vào form
+      document.getElementById('newUserName').value = user.name;
+      document.getElementById('newUserEmail').value = user.email;
+      document.getElementById('newUserRole').value = user.role;
+      document.getElementById('newUserStatus').value = user.status;
+
+      // Hiển thị modal thêm người dùng (dùng làm form edit)
+      const modal = new bootstrap.Modal(document.getElementById('addUserModal'));
+      modal.show();
+
+      alert(`Đang chỉnh sửa thông tin người dùng: ${user.name}\n(Demo: Chức năng lưu sẽ được tích hợp với backend)`);
+    }
+
+    // ===== XÓA NGƯỜI DÙNG =====
+    function deleteUser(userId) {
+      const user = dummyUsers.find(u => u.id === userId);
+      if (!user) {
+        alert('Không tìm thấy người dùng!');
+        return;
+      }
+
+      if (confirm(`⚠️ Bạn có chắc muốn xóa người dùng "${user.name}"?\n\nThao tác này không thể hoàn tác!`)) {
+        // Mô phỏng xóa trên blockchain
+        const txHash = '0x' + Math.random().toString(16).substring(2, 18);
+        alert(`✅ Đã xóa người dùng "${user.name}" thành công!\n\n🔗 Transaction Hash: ${txHash}\nGiao dịch đã được ghi nhận trên blockchain.`);
+
+        // Trong thực tế sẽ xóa khỏi array và localStorage
+        // const index = dummyUsers.findIndex(u => u.id === userId);
+        // dummyUsers.splice(index, 1);
+        // renderUserTable();
+      }
+    }
+
+    // ===== HIỂN THỊ MODAL THÊM NGƯỜI DÙNG =====
+    function showAddUserModal() {
+      // Đóng modal danh sách
+      const listModal = bootstrap.Modal.getInstance(document.getElementById('userListModal'));
+      if (listModal) listModal.hide();
+
+      // Reset form
+      document.getElementById('addUserForm').reset();
+
+      // Hiển thị modal thêm
+      const modal = new bootstrap.Modal(document.getElementById('addUserModal'));
+      modal.show();
+    }
+
+    // ===== XEM CHI TIẾT LÔ =====
+    function viewBatch(id) {
+      // Lấy thông tin lô từ localStorage hoặc dữ liệu mẫu
+      const batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
+      let batch = batches.find(b => b.tokenId === id);
+
+      // Nếu không tìm thấy trong localStorage, dùng dữ liệu mẫu
+      if (!batch) {
+        const sampleBatches = {
+          'BC001': {
+            tokenId: 'BC001',
+            variety: 'Nàng hoa 9',
+            location: 'Xã Tân Phú, Huyện Vĩnh Cửu, Tỉnh Đồng Nai',
+            area: '2.5',
+            plantDate: '2025-09-01',
+            creator: 'Nguyễn Văn A',
+            status: 'Đang canh tác',
+            note: 'Lô sản phẩm chất lượng cao',
+            createdAt: '2025-11-01T08:00:00'
+          },
+          'BC002': {
+            tokenId: 'BC002',
+            variety: 'Jasmine 85',
+            location: 'An Giang, Việt Nam',
+            area: '3.0',
+            plantDate: '2025-08-15',
+            creator: 'Trần Thị B',
+            status: 'Đã thu hoạch',
+            note: 'Xuất khẩu',
+            createdAt: '2025-10-25T07:30:00'
+          },
+          'BC003': {
+            tokenId: 'BC003',
+            variety: 'ST25',
+            location: 'Đồng Tháp, Việt Nam',
+            area: '2.0',
+            plantDate: '2025-09-20',
+            creator: 'Lê Văn C',
+            status: 'Đang xay xát',
+            note: 'Gạo cao cấp',
+            createdAt: '2025-10-20T09:00:00'
+          },
+          'BC004': {
+            tokenId: 'BC004',
+            variety: 'Nếp cái hoa vàng',
+            location: 'Cần Thơ, Việt Nam',
+            area: '1.5',
+            plantDate: '2025-09-18',
+            creator: 'Phạm Văn D',
+            status: 'Đang vận chuyển',
+            note: 'Nếp đặc sản',
+            createdAt: '2025-10-18T10:15:00'
+          },
+          'BC005': {
+            tokenId: 'BC005',
+            variety: 'OM18',
+            location: 'Long An, Việt Nam',
+            area: '2.8',
+            plantDate: '2025-08-10',
+            creator: 'Hoàng Thị E',
+            status: 'Đã phân phối',
+            note: 'Đạt tiêu chuẩn VietGAP',
+            createdAt: '2025-10-10T11:00:00'
+          }
+        };
+        batch = sampleBatches[id];
+      }
+
+      if (!batch) {
+        alert('Không tìm thấy thông tin lô sản phẩm!');
+        return;
+      }
+
+      // Hiển thị thông tin lên modal
+      document.getElementById('viewTokenId').textContent = batch.tokenId;
+      document.getElementById('viewVariety').textContent = batch.variety;
+      document.getElementById('viewCreator').textContent = batch.creator;
+      document.getElementById('viewLocation').textContent = batch.location;
+      document.getElementById('viewArea').textContent = batch.area + ' ha';
+      document.getElementById('viewStatus').textContent = batch.status;
+      document.getElementById('viewNote').textContent = batch.note || 'Không có ghi chú';
+      document.getElementById('viewCreatedDate').textContent = new Date(batch.createdAt || batch.plantDate).toLocaleString('vi-VN');
+      document.getElementById('viewBlockHash').textContent = '0x' + Math.random().toString(16).substring(2, 18) + '...';
+
+      // Link đến trang truy xuất
+      document.getElementById('viewTraceabilityLink').href = `traceability.html?token=${batch.tokenId}`;
+
+      // Hiển thị modal
+      const modal = new bootstrap.Modal(document.getElementById('viewBatchModal'));
+      modal.show();
+    }
+
+    // ===== CHỈNH SỬA LÔ =====
+    function editBatch(id) {
+      // Lấy thông tin lô từ localStorage hoặc dữ liệu mẫu
+      const batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
+      let batch = batches.find(b => b.tokenId === id);
+
+      // Nếu không tìm thấy trong localStorage, dùng dữ liệu mẫu
+      if (!batch) {
+        const sampleBatches = {
+          'BC001': {
+            tokenId: 'BC001',
+            variety: 'Nàng hoa 9',
+            location: 'Xã Tân Phú, Huyện Vĩnh Cửu, Tỉnh Đồng Nai',
+            area: '2.5',
+            status: 'Đang canh tác',
+            note: 'Lô sản phẩm chất lượng cao'
+          },
+          'BC002': {
+            tokenId: 'BC002',
+            variety: 'Jasmine 85',
+            location: 'An Giang, Việt Nam',
+            area: '3.0',
+            status: 'Đã thu hoạch',
+            note: 'Xuất khẩu'
+          },
+          'BC003': {
+            tokenId: 'BC003',
+            variety: 'ST25',
+            location: 'Đồng Tháp, Việt Nam',
+            area: '2.0',
+            status: 'Đang xay xát',
+            note: 'Gạo cao cấp'
+          },
+          'BC004': {
+            tokenId: 'BC004',
+            variety: 'Nếp cái hoa vàng',
+            location: 'Cần Thơ, Việt Nam',
+            area: '1.5',
+            status: 'Đang vận chuyển',
+            note: 'Nếp đặc sản'
+          },
+          'BC005': {
+            tokenId: 'BC005',
+            variety: 'OM18',
+            location: 'Long An, Việt Nam',
+            area: '2.8',
+            status: 'Đã phân phối',
+            note: 'Đạt tiêu chuẩn VietGAP'
+          }
+        };
+        batch = sampleBatches[id];
+      }
+
+      if (!batch) {
+        alert('Không tìm thấy thông tin lô sản phẩm!');
+        return;
+      }
+
+      // Điền thông tin vào form
+      document.getElementById('editTokenId').value = batch.tokenId;
+      document.getElementById('editTokenIdDisplay').value = batch.tokenId;
+      document.getElementById('editVariety').value = batch.variety;
+      document.getElementById('editLocation').value = batch.location;
+      document.getElementById('editArea').value = batch.area;
+      document.getElementById('editStatus').value = batch.status;
+      document.getElementById('editNote').value = batch.note || '';
+
+      // Hiển thị modal
+      const modal = new bootstrap.Modal(document.getElementById('editBatchModal'));
+      modal.show();
+    }
+
+    // ===== LƯU THAY ĐỔI LÔ =====
+    function saveBatchChanges() {
+      const tokenId = document.getElementById('editTokenId').value;
+      const variety = document.getElementById('editVariety').value;
+      const location = document.getElementById('editLocation').value;
+      const area = document.getElementById('editArea').value;
+      const status = document.getElementById('editStatus').value;
+      const note = document.getElementById('editNote').value;
+
+      if (!variety || !location || !area) {
+        alert('Vui lòng điền đầy đủ thông tin!');
+        return;
+      }
+
+      // Lấy danh sách lô hiện tại
+      let batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
+      const index = batches.findIndex(b => b.tokenId === tokenId);
+
+      if (index !== -1) {
+        // Cập nhật lô đã có
+        batches[index] = {
+          ...batches[index],
+          variety: variety,
+          location: location,
+          area: area,
+          status: status,
+          note: note,
+          updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem('riceBatches', JSON.stringify(batches));
+      }
+
+      // Mô phỏng ghi lên blockchain
+      const blockHash = '0x' + Math.random().toString(16).substring(2, 18);
+
+      alert(`✅ Đã cập nhật thông tin lô ${tokenId} thành công!\n\nGiống lúa: ${variety}\nKhu vực: ${location}\nDiện tích: ${area} ha\nTrạng thái: ${status}\n\n🔗 Block Hash: ${blockHash}\nGiao dịch đã được ghi nhận trên blockchain.`);
+
+      // Đóng modal
+      bootstrap.Modal.getInstance(document.getElementById('editBatchModal')).hide();
+
+      // Reload dữ liệu bảng
+      loadBatchData();
+    }
+
+    function showAddBatchModal() {
+      alert('Chức năng thêm lô mới (chuyển đến input_form.html để tạo lô)');
+      window.location.href = 'input_form.html';
+    }
+  </script>
+</body>
+
+</html>
