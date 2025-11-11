@@ -1,3 +1,13 @@
+/**
+ * ╔═══════════════════════════════════════════════════════════╗
+ * ║   Blockchain Rice Supply Chain Management System          ║
+ * ║   Backend API Server                                       ║
+ * ║   Author: NNB (Nguyen Ngoc Binh)                         ║
+ * ║   Copyright © 2025 NNB. All Rights Reserved.             ║
+ * ║   GitHub: https://github.com/ngocbinh15                   ║
+ * ╚═══════════════════════════════════════════════════════════╝
+ */
+
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
