@@ -301,6 +301,12 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/main.js"></script>
   <script>
+    // ===== OVERRIDE NATIVE ALERTS =====
+    window.alert = function (message) {
+      console.warn('Alert blocked:', message);
+      showErrorMessage(String(message));
+    };
+
     // ===== DỮ LIỆU MẪU =====
     const sampleData = {
       'BC001': {
@@ -556,8 +562,33 @@
 
       } catch (error) {
         console.error('API Error:', error);
-        alert(error.message || 'Không tìm thấy thông tin sản phẩm. Vui lòng thử lại với mã lô khác.');
+        showErrorMessage(error.message || 'Không tìm thấy thông tin sản phẩm. Vui lòng thử lại với mã lô khác.');
       }
+    }
+
+    // ===== SHOW ERROR MESSAGE =====
+    function showErrorMessage(message) {
+      const resultSection = document.getElementById('resultSection');
+      resultSection.style.display = 'block';
+      resultSection.innerHTML = `
+        <div class="container py-5">
+          <div class="row justify-content-center">
+            <div class="col-lg-8">
+              <div class="card shadow-lg border-0" style="border-radius: 20px;">
+                <div class="card-body text-center p-5">
+                  <i class="bi bi-exclamation-triangle text-danger" style="font-size: 5rem;"></i>
+                  <h3 class="mt-4 mb-3">Không tìm thấy thông tin</h3>
+                  <p class="text-muted mb-4">${message}</p>
+                  <button class="btn btn-primary btn-lg" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise"></i> Thử lại
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ===== HELPER FUNCTIONS =====
