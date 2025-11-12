@@ -504,84 +504,95 @@
     // ===== SEARCH PRODUCT =====
     async function searchProduct(tokenId) {
       try {
+        console.log('Searching for batch:', tokenId);
+
         // Gọi API backend để lấy dữ liệu thật
         const response = await fetch(`${API_BASE_URL}/batches/${tokenId}`);
+        console.log('Response status:', response.status);
 
         if (response.ok) {
           const result = await response.json();
-          if (result.success && result.data) {
-            displayResult(result.data);
+          console.log('API result:', result);
+
+          if (result.success && result.batch) {
+            // Chuyển đổi dữ liệu từ API sang format hiển thị
+            const batch = result.batch;
+            const transactions = result.transactions || [];
+
+            // Map events từ transactions
+            const events = transactions.map(trans => ({
+              icon: getEventIconFromAction(trans.action),
+              title: getEventNameFromAction(trans.action),
+              date: new Date(trans.timestamp).toLocaleDateString('vi-VN'),
+              time: new Date(trans.timestamp).toLocaleTimeString('vi-VN'),
+              location: trans.location || 'Không xác định',
+              performer: trans.full_name || trans.username || 'Hệ thống',
+              description: trans.description || '',
+              hash: `0x${Math.random().toString(16).substring(2, 42)}` // Mock hash
+            }));
+
+            const displayData = {
+              tokenId: batch.batch_code,
+              productName: batch.product_name,
+              variety: batch.product_name,
+              origin: 'Việt Nam',
+              farmer: batch.creator_name || batch.username || 'Không xác định',
+              harvestDate: new Date(batch.created_at).toLocaleDateString('vi-VN'),
+              quantity: `${batch.quantity} ${batch.unit}`,
+              quality: 'Đạt chuẩn',
+              certification: 'VietGAP',
+              blockHash: `0x${Math.random().toString(16).substring(2, 42)}`,
+              timestamp: new Date(batch.created_at).toLocaleString('vi-VN'),
+              events: events
+            };
+
+            displayResult(displayData);
             return;
           }
         }
+
+        // Nếu không tìm thấy, hiển thị lỗi
+        throw new Error(`Không tìm thấy thông tin cho mã lô: ${tokenId}`);
+
       } catch (error) {
         console.error('API Error:', error);
+        alert(error.message || 'Không tìm thấy thông tin sản phẩm. Vui lòng thử lại với mã lô khác.');
       }
+    }
 
-      // Fallback: Tìm trong dữ liệu mẫu
-      let data = null;
+    // ===== HELPER FUNCTIONS =====
+    function getEventIconFromAction(action) {
+      const iconMap = {
+        'CREATE': '🌱',
+        'fertilizing': '🌱',
+        'irrigation': '💧',
+        'harvesting': '🌾',
+        'milling': '🏭',
+        'packaging': '📦',
+        'shipping': '🚚',
+        'warehouse_in': '📥',
+        'warehouse_out': '📤',
+        'quality_check': '✅',
+        'distribution': '🏪'
+      };
+      return iconMap[action] || '📝';
+    }
 
-      // Tìm chính xác
-      if (sampleData[tokenId]) {
-        data = sampleData[tokenId];
-      } else {
-        // Tìm gần đúng (bắt đầu bằng)
-        for (let key in sampleData) {
-          if (tokenId.startsWith(key)) {
-            data = sampleData[key];
-            break;
-          }
-        }
-      }
-
-      // Kiểm tra trong localStorage
-      if (!data) {
-        const batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
-        const batch = batches.find(b => b.tokenId === tokenId || b.tokenId.startsWith(tokenId));
-
-        if (batch) {
-          // Chuyển đổi dữ liệu từ localStorage
-          const events = JSON.parse(localStorage.getItem('riceEvents') || '[]')
-            .filter(e => e.tokenId === batch.tokenId)
-            .map(e => ({
-              icon: getEventIcon(e.type),
-              title: e.typeName,
-              date: new Date(e.time).toLocaleDateString('vi-VN'),
-              time: new Date(e.time).toLocaleTimeString('vi-VN'),
-              location: e.location || 'Không xác định',
-              performer: e.performer,
-              description: e.description,
-              hash: e.blockHash
-            }));
-
-          data = {
-            tokenId: batch.tokenId,
-            productName: `Gạo ${batch.variety}`,
-            variety: batch.variety,
-            origin: batch.location,
-            area: batch.area + ' ha',
-            farmer: batch.creator,
-            events: events.length > 0 ? events : [{
-              icon: 'bi-seedling',
-              title: 'Gieo trồng',
-              date: new Date(batch.plantDate).toLocaleDateString('vi-VN'),
-              time: '06:00',
-              location: batch.location,
-              performer: batch.creator,
-              description: `Gieo giống ${batch.variety}, diện tích ${batch.area} ha`,
-              hash: '0x' + Math.random().toString(16).substring(2, 14)
-            }]
-          };
-        }
-      }
-
-      if (!data) {
-        alert('❌ Không tìm thấy thông tin cho mã lô: ' + tokenId + '\n\nVui lòng thử lại với mã khác hoặc sử dụng mã mẫu.');
-        return;
-      }
-
-      // Hiển thị kết quả
-      displayResult(data);
+    function getEventNameFromAction(action) {
+      const nameMap = {
+        'CREATE': 'Tạo lô',
+        'fertilizing': 'Bón phân',
+        'irrigation': 'Tưới tiêu',
+        'harvesting': 'Thu hoạch',
+        'milling': 'Xay xát',
+        'packaging': 'Đóng gói',
+        'shipping': 'Vận chuyển',
+        'warehouse_in': 'Nhập kho',
+        'warehouse_out': 'Xuất kho',
+        'quality_check': 'Kiểm tra chất lượng',
+        'distribution': 'Phân phối'
+      };
+      return nameMap[action] || action;
     }
 
     // ===== DISPLAY RESULT =====
