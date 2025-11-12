@@ -378,7 +378,7 @@
                 <small class="text-muted d-block mb-1">MÃ LÔ</small>
                 <h3 class="mb-0 fw-bold" id="modalBatchCode" style="font-family: monospace; color: #155724;">---</h3>
               </div>
-              <button class="btn btn-success btn-sm" onclick="copyBatchCodeFromModal()" title="Sao chép mã lô">
+              <button class="btn btn-success btn-sm" onclick="copyBatchCodeFromModal(event)" title="Sao chép mã lô">
                 <i class="bi bi-clipboard"></i> Copy
               </button>
             </div>
@@ -948,7 +948,7 @@
     }
 
     // ===== COPY BATCH CODE FROM MODAL =====
-    function copyBatchCodeFromModal() {
+    function copyBatchCodeFromModal(event) {
       const batchCode = document.getElementById('modalBatchCode').textContent;
 
       navigator.clipboard.writeText(batchCode).then(() => {
