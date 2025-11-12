@@ -448,6 +448,7 @@
       });
     }
 
+    // ===== UC3: GHI NHẬN SỰ KIỆN =====
     document.getElementById('eventForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
@@ -458,56 +459,54 @@
       const eventPerformer = document.getElementById('eventPerformer').value;
       const eventDescription = document.getElementById('eventDescription').value;
 
+      if (!tokenId) {
+        alert('⚠️ Vui lòng chọn mã lô!');
+        return;
+      }
+
       try {
-        // Gọi API để thêm transaction/event
-        const response = await fetch(`${API_BASE_URL}/batches/${tokenId}/transaction`, {
+        console.log('=== ADDING EVENT ===');
+        console.log('Batch code:', tokenId);
+        console.log('Event:', { eventType, eventLocation, eventDescription });
+
+        // Gọi API SIMPLE - KHÔNG CẦN TOKEN
+        const response = await fetch(`${API_BASE_URL}/batches/${tokenId}/transaction/simple`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            type: eventType,
-            location: eventLocation,
-            performer: eventPerformer || username || 'Unknown',
-            description: eventDescription,
-            timestamp: eventTime
+            action: eventType,
+            description: eventDescription || `${eventType} - ${eventLocation}`,
+            location: eventLocation
           })
         });
 
+        console.log('Response status:', response.status);
         const result = await response.json();
+        console.log('Response:', result);
 
         if (result.success) {
-          // Hiển thị thông báo thành công
-          showToast(`✅ Sự kiện đã được ghi nhận!\n\n📦 Lô: ${tokenId}\n📝 ${document.getElementById('eventType').selectedOptions[0].text}\n\n🔗 Đã lưu trên blockchain.`);
+          alert(`✅ Thành công!\n\nMã lô: ${tokenId}\nSự kiện: ${eventType}\nVị trí: ${eventLocation}`);
 
-          // Reset form sau 2s
+          // Reset form
+          this.reset();
+
+          // Reload danh sách sau 1s
           setTimeout(() => {
-            this.reset();
-            loadRecentEvents(); // Reload danh sách sự kiện
-          }, 2000);
+            loadRecentEvents();
+          }, 1000);
         } else {
-          throw new Error(result.message || 'API failed');
+          alert(`❌ Lỗi: ${result.message || 'Không thể thêm sự kiện'}`);
         }
       } catch (error) {
         console.error('Add event error:', error);
-
-        // Hiển thị lỗi chi tiết - KHÔNG fallback localStorage
-        let errorMsg = '❌ Không thể ghi nhận sự kiện!\n\n';
-        if (error.message && error.message.includes('fetch')) {
-          errorMsg += '🔌 Lỗi kết nối server.\n\n';
-        } else if (!token) {
-          errorMsg += '🔑 Bạn cần đăng nhập lại.\n\n';
-        } else {
-          errorMsg += `📝 ${error.message}\n\n`;
-        }
-        errorMsg += 'Vui lòng thử lại hoặc liên hệ admin.';
-
-        showToast(errorMsg);
+        alert(`❌ Lỗi kết nối!\n\n${error.message}\n\nVui lòng kiểm tra:\n- Mã lô có đúng không?\n- Kết nối internet`);
       }
-    });    // ===== LOAD TOKEN IDs =====
-    function loadTokenIds() {
-      const batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
+    });
+
+    // ===== LOAD DANH SÁCH LÔ TỪ API =====
+    async function loadTokenIds() {
       const select = document.getElementById('tokenId');
 
       // Xóa các option cũ (trừ option đầu tiên)
@@ -515,16 +514,36 @@
         select.remove(1);
       }
 
-      // Thêm các token ID
-      batches.forEach(batch => {
-        const option = document.createElement('option');
-        option.value = batch.tokenId;
-        option.textContent = `${batch.tokenId} - ${batch.variety}`;
-        select.appendChild(option);
-      });
+      try {
+        // Gọi API lấy danh sách batches
+        const response = await fetch(`${API_BASE_URL}/batches`);
 
-      // Thêm option mẫu nếu chưa có dữ liệu
-      if (batches.length === 0) {
+        if (!response.ok) {
+          throw new Error('Cannot fetch batches');
+        }
+
+        const result = await response.json();
+        console.log('Loaded batches:', result);
+
+        if (result.success && result.batches && result.batches.length > 0) {
+          result.batches.forEach(batch => {
+            const option = document.createElement('option');
+            option.value = batch.batch_code;
+            option.textContent = `${batch.batch_code} - ${batch.product_name}`;
+            select.appendChild(option);
+          });
+        } else {
+          // Thêm option mẫu nếu chưa có dữ liệu
+          ['BC001ABC', 'BC002XYZ', 'BC003DEF'].forEach(id => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = id + ' (Mẫu)';
+            select.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Load batches error:', error);
+        // Fallback: Thêm option mẫu
         ['BC001ABC', 'BC002XYZ', 'BC003DEF'].forEach(id => {
           const option = document.createElement('option');
           option.value = id;
