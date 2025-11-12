@@ -304,13 +304,13 @@
   <!-- Toast notification -->
   <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
     <div id="successToast" class="toast" role="alert">
-      <div class="toast-header bg-success text-white">
-        <i class="bi bi-check-circle me-2"></i>
-        <strong class="me-auto">Thành công</strong>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+      <div class="toast-header" id="toastHeader">
+        <i class="bi me-2" id="toastIcon"></i>
+        <strong class="me-auto" id="toastTitle">Thông báo</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
       </div>
       <div class="toast-body" id="toastMessage">
-        Sự kiện đã được ghi nhận lên blockchain (mô phỏng)
+        Thông báo
       </div>
     </div>
   </div>
@@ -319,7 +319,8 @@
   <div class="modal fade" id="eventSuccessModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content" style="border: none; border-radius: 20px; overflow: hidden;">
-        <div class="modal-header text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none;">
+        <div class="modal-header text-white"
+          style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none;">
           <h5 class="modal-title">
             <i class="bi bi-check-circle-fill me-2"></i>Ghi nhận sự kiện thành công!
           </h5>
@@ -524,11 +525,11 @@
             loadRecentEvents();
           }, { once: true });
         } else {
-          alert(`❌ Lỗi: ${result.message || 'Không thể tạo lô sản phẩm'}`);
+          showToast(result.message || 'Không thể tạo lô sản phẩm', 'error');
         }
       } catch (error) {
         console.error('Create batch error:', error);
-        alert(`❌ Lỗi kết nối!\n\n${error.message}\n\nVui lòng kiểm tra kết nối internet và thử lại.`);
+        showToast(`Lỗi kết nối! ${error.message}. Vui lòng kiểm tra kết nối internet và thử lại.`, 'error');
       }
     });    // ===== SINH TOKEN ID MÔ PHỎNG =====
     function generateTokenId(variety, location, date) {
@@ -553,7 +554,7 @@
     function copyTokenId() {
       const tokenId = document.getElementById('generatedTokenId').textContent;
       navigator.clipboard.writeText(tokenId).then(() => {
-        alert('✅ Đã sao chép Token ID vào clipboard!');
+        showToast(`Đã sao chép Token ID: ${tokenId}`, 'success');
       });
     }
 
@@ -569,7 +570,7 @@
       const eventDescription = document.getElementById('eventDescription').value;
 
       if (!tokenId) {
-        alert('⚠️ Vui lòng chọn mã lô!');
+        showToast('Vui lòng chọn mã lô!', 'warning');
         return;
       }
 
@@ -599,12 +600,12 @@
           // Lấy tên sự kiện từ dropdown
           const eventTypeSelect = document.getElementById('eventType');
           const eventTypeName = eventTypeSelect.options[eventTypeSelect.selectedIndex].text;
-          
+
           // Hiển thị modal với thông tin chi tiết
           document.getElementById('eventModalBatchCode').textContent = tokenId;
           document.getElementById('eventModalType').textContent = eventTypeName;
           document.getElementById('eventModalLocation').textContent = eventLocation || 'Không có';
-          
+
           // Hiển thị modal
           const modal = new bootstrap.Modal(document.getElementById('eventSuccessModal'));
           modal.show();
@@ -617,11 +618,11 @@
             loadRecentEvents();
           }, { once: true });
         } else {
-          alert(`❌ Lỗi: ${result.message || 'Không thể thêm sự kiện'}`);
+          showToast(result.message || 'Không thể thêm sự kiện', 'error');
         }
       } catch (error) {
         console.error('Add event error:', error);
-        alert(`❌ Lỗi kết nối!\n\n${error.message}\n\nVui lòng kiểm tra:\n- Mã lô có đúng không?\n- Kết nối internet`);
+        showToast(`Lỗi kết nối! ${error.message}. Vui lòng kiểm tra mã lô và kết nối internet.`, 'error');
       }
     });
 
@@ -782,15 +783,15 @@
       const tokenId = select.value;
 
       if (!tokenId) {
-        alert('⚠️ Vui lòng chọn mã lô trước!');
+        showToast('Vui lòng chọn mã lô trước!', 'warning');
         return;
       }
 
       navigator.clipboard.writeText(tokenId).then(() => {
-        alert(`✅ Đã sao chép mã lô: ${tokenId}`);
+        showToast(`Đã sao chép mã lô: ${tokenId}`, 'success');
       }).catch(err => {
         console.error('Copy failed:', err);
-        alert('❌ Không thể sao chép. Vui lòng sao chép thủ công.');
+        showToast('Không thể sao chép. Vui lòng sao chép thủ công.', 'error');
       });
     }
 
@@ -813,14 +814,53 @@
         }, 2000);
       }).catch(err => {
         console.error('Copy failed:', err);
-        alert('❌ Không thể sao chép. Vui lòng sao chép thủ công.');
+        showToast('Không thể sao chép. Vui lòng sao chép thủ công.', 'error');
       });
     }
 
-    // ===== SHOW TOAST =====
-    function showToast(message) {
-      document.getElementById('toastMessage').textContent = message;
-      const toast = new bootstrap.Toast(document.getElementById('successToast'));
+    // ===== SHOW TOAST WITH TYPES =====
+    function showToast(message, type = 'success') {
+      const toastEl = document.getElementById('successToast');
+      const toastHeader = document.getElementById('toastHeader');
+      const toastIcon = document.getElementById('toastIcon');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMessage = document.getElementById('toastMessage');
+      const closeBtn = toastHeader.querySelector('.btn-close');
+
+      // Reset classes
+      toastHeader.className = 'toast-header';
+      toastIcon.className = 'bi me-2';
+      closeBtn.className = 'btn-close';
+
+      // Set style based on type
+      switch (type) {
+        case 'success':
+          toastHeader.classList.add('bg-success', 'text-white');
+          toastIcon.classList.add('bi-check-circle-fill');
+          toastTitle.textContent = 'Thành công';
+          closeBtn.classList.add('btn-close-white');
+          break;
+        case 'error':
+          toastHeader.classList.add('bg-danger', 'text-white');
+          toastIcon.classList.add('bi-x-circle-fill');
+          toastTitle.textContent = 'Lỗi';
+          closeBtn.classList.add('btn-close-white');
+          break;
+        case 'warning':
+          toastHeader.classList.add('bg-warning', 'text-dark');
+          toastIcon.classList.add('bi-exclamation-triangle-fill');
+          toastTitle.textContent = 'Cảnh báo';
+          break;
+        case 'info':
+          toastHeader.classList.add('bg-info', 'text-white');
+          toastIcon.classList.add('bi-info-circle-fill');
+          toastTitle.textContent = 'Thông tin';
+          closeBtn.classList.add('btn-close-white');
+          break;
+      }
+
+      toastMessage.textContent = message;
+      const toast = new bootstrap.Toast(toastEl);
       toast.show();
     }
   </script>
