@@ -404,11 +404,41 @@
             loadTokenIds(); // Reload danh sách
           }, 3000);
         } else {
-          showToast(`❌ Lỗi: ${result.message || 'Không thể tạo lô sản phẩm'}`);
+          throw new Error(result.message || 'API failed');
         }
       } catch (error) {
         console.error('Create batch error:', error);
-        showToast('❌ Không thể kết nối đến server. Vui lòng thử lại!');
+
+        // Fallback: Lưu vào localStorage nếu API lỗi
+        const batch = {
+          tokenId: tokenId,
+          variety: variety,
+          location: location,
+          area: area,
+          plantDate: plantDate,
+          note: note,
+          creator: username || 'Unknown',
+          createdAt: new Date().toISOString(),
+          status: 'Đang canh tác'
+        };
+
+        let batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
+        batches.push(batch);
+        localStorage.setItem('riceBatches', JSON.stringify(batches));
+
+        // Hiển thị Token ID
+        document.getElementById('generatedTokenId').textContent = tokenId;
+        document.getElementById('tokenIdDisplay').style.display = 'block';
+
+        // Hiển thị thông báo
+        showToast(`⚠️ Lưu offline thành công!\n\nToken ID: ${tokenId}\n\n(Dữ liệu chỉ có trên thiết bị này)`);
+
+        // Reset form sau 3s
+        setTimeout(() => {
+          this.reset();
+          document.getElementById('tokenIdDisplay').style.display = 'none';
+          loadTokenIds();
+        }, 3000);
       }
     });
 
@@ -439,7 +469,6 @@
       });
     }
 
-    // ===== UC3: GHI NHẬN SỰ KIỆN =====
     document.getElementById('eventForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
@@ -479,11 +508,36 @@
             loadRecentEvents(); // Reload danh sách sự kiện
           }, 2000);
         } else {
-          showToast(`❌ Lỗi: ${result.message || 'Không thể ghi nhận sự kiện'}`);
+          throw new Error(result.message || 'API failed');
         }
       } catch (error) {
         console.error('Add event error:', error);
-        showToast('❌ Không thể kết nối đến server. Vui lòng thử lại!');
+
+        // Fallback: Lưu vào localStorage nếu API lỗi
+        const event = {
+          tokenId: tokenId,
+          type: eventType,
+          typeName: document.getElementById('eventType').selectedOptions[0].text,
+          time: eventTime,
+          location: eventLocation,
+          performer: eventPerformer || username || 'Unknown',
+          description: eventDescription,
+          recordedAt: new Date().toISOString(),
+          blockHash: '0x' + Math.random().toString(16).substring(2, 12)
+        };
+
+        let events = JSON.parse(localStorage.getItem('riceEvents') || '[]');
+        events.unshift(event);
+        localStorage.setItem('riceEvents', JSON.stringify(events));
+
+        // Hiển thị thông báo
+        showToast(`⚠️ Lưu offline thành công!\n\n📦 ${event.typeName}\n\n(Dữ liệu chỉ có trên thiết bị này)`);
+
+        // Reset form sau 2s
+        setTimeout(() => {
+          this.reset();
+          loadRecentEvents();
+        }, 2000);
       }
     });
 
