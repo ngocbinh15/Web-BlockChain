@@ -86,15 +86,15 @@ function showNotification(message, type = 'info', onConfirm = null) {
                 <i class="bi ${icon}" style="font-size: 2rem; color: ${color}; margin-right: 15px;"></i>
                 <div style="flex: 1;">
                     <h5 style="margin: 0 0 10px 0; color: #333;">${title}</h5>
-                    <p style="margin: 0 0 15px 0; color: #666;">${message}</p>
+                    <p style="margin: 0 0 15px 0; color: #666; white-space: pre-line;">${message}</p>
                     <div style="display: flex; gap: 10px;">
-                        <button id="${id}-confirm" 
-                                style="flex: 1; padding: 8px 16px; background: ${color}; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                            Xác nhận
+                        <button class="nnb-confirm-btn" data-id="${id}"
+                                style="flex: 1; padding: 12px 20px; background: ${color}; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                            ✓ Xác nhận
                         </button>
-                        <button id="${id}-cancel" 
-                                style="flex: 1; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
-                            Hủy
+                        <button class="nnb-cancel-btn" data-id="${id}"
+                                style="flex: 1; padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            ✕ Hủy
                         </button>
                     </div>
                 </div>
@@ -102,21 +102,6 @@ function showNotification(message, type = 'info', onConfirm = null) {
         `;
         
         container.appendChild(notification);
-        
-        // Add event listeners
-        document.getElementById(`${id}-confirm`).addEventListener('click', function() {
-            const callback = window.__notificationCallbacks[id];
-            if (callback) {
-                callback();
-                delete window.__notificationCallbacks[id];
-            }
-            document.getElementById(id).remove();
-        });
-        
-        document.getElementById(`${id}-cancel`).addEventListener('click', function() {
-            delete window.__notificationCallbacks[id];
-            document.getElementById(id).remove();
-        });
         
     } else {
         notification.innerHTML = `
@@ -162,6 +147,42 @@ function showNotification(message, type = 'info', onConfirm = null) {
         document.head.appendChild(style);
     }
 }
+
+// Event delegation for confirm buttons
+document.addEventListener('click', function(e) {
+    // Handle confirm button
+    if (e.target.classList.contains('nnb-confirm-btn')) {
+        const notifId = e.target.getAttribute('data-id');
+        console.log('Confirm button clicked, notification id:', notifId);
+        
+        const callback = window.__notificationCallbacks[notifId];
+        console.log('Callback found:', callback);
+        
+        if (callback && typeof callback === 'function') {
+            console.log('Executing callback...');
+            callback();
+            delete window.__notificationCallbacks[notifId];
+        }
+        
+        const notifElement = document.getElementById(notifId);
+        if (notifElement) {
+            notifElement.remove();
+        }
+    }
+    
+    // Handle cancel button
+    if (e.target.classList.contains('nnb-cancel-btn')) {
+        const notifId = e.target.getAttribute('data-id');
+        console.log('Cancel button clicked, notification id:', notifId);
+        
+        delete window.__notificationCallbacks[notifId];
+        
+        const notifElement = document.getElementById(notifId);
+        if (notifElement) {
+            notifElement.remove();
+        }
+    }
+});
 
 // Override native alert and confirm
 window.alert = function(message) {
