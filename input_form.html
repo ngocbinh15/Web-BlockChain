@@ -370,6 +370,10 @@
       const tokenId = generateTokenId(variety, location, plantDate);
 
       try {
+        // Debug: Kiểm tra token
+        console.log('Token:', token ? 'exists' : 'missing');
+        console.log('Token length:', token ? token.length : 0);
+        
         // Gọi API để tạo batch mới
         const response = await fetch(`${API_BASE_URL}/batches`, {
           method: 'POST',
@@ -378,12 +382,10 @@
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            code: tokenId,
-            variety: variety,
-            location: location,
-            area: parseFloat(area),
-            plantDate: plantDate,
-            notes: note
+            batch_code: tokenId,
+            product_name: `${variety} - ${location}`,
+            quantity: parseFloat(area),
+            unit: 'hecta'
           })
         });
 
