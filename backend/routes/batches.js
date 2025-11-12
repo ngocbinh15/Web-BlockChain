@@ -29,13 +29,13 @@ const authMiddleware = async (req, res, next) => {
 
 // @route   GET /api/batches
 // @desc    Get all batches
-// @access  Private
-router.get('/', authMiddleware, async (req, res) => {
+// @access  Public (changed from Private)
+router.get('/', async (req, res) => {
   try {
     const [batches] = await db.query(`
       SELECT b.*, u.username as created_by_username, u.full_name as created_by_name
       FROM batches b
-      JOIN users u ON b.created_by = u.id
+      LEFT JOIN users u ON b.created_by = u.id
       ORDER BY b.created_at DESC
     `);
 
@@ -213,6 +213,56 @@ router.post('/simple', [
     });
   } catch (error) {
     console.error('Create batch simple error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Lỗi server: ' + error.message 
+    });
+  }
+});
+
+// @route   POST /api/batches/:batch_code/transaction/simple
+// @desc    Add transaction to batch WITHOUT authentication (simplified)
+// @access  Public
+router.post('/:batch_code/transaction/simple', [
+  body('action').trim().notEmpty().withMessage('Action là bắt buộc'),
+  body('description').trim().notEmpty().withMessage('Description là bắt buộc')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { batch_code } = req.params;
+    const { action, description, location } = req.body;
+
+    // Get batch
+    const [batches] = await db.query(
+      'SELECT id FROM batches WHERE batch_code = ?',
+      [batch_code]
+    );
+
+    if (batches.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Không tìm thấy lô hàng với mã: ' + batch_code
+      });
+    }
+
+    // Insert transaction (user_id = 1 for anonymous/system user)
+    await db.query(
+      'INSERT INTO transactions (batch_id, user_id, action, description, location) VALUES (?, ?, ?, ?, ?)',
+      [batches[0].id, 1, action, description, location || null]
+    );
+
+    res.json({
+      success: true,
+      message: 'Thêm giao dịch thành công',
+      batch_code: batch_code,
+      action: action
+    });
+  } catch (error) {
+    console.error('Add transaction simple error:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Lỗi server: ' + error.message 
