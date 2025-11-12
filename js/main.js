@@ -1,6 +1,9 @@
 // ===== MAIN.JS - Common JavaScript functions =====
 
 // ===== GLOBAL NOTIFICATION SYSTEM =====
+// Store callbacks for confirm dialogs
+window.__notificationCallbacks = {};
+
 // Inject notification container and styles on page load
 (function() {
     // Add notification container to body
@@ -73,6 +76,11 @@ function showNotification(message, type = 'info', onConfirm = null) {
     notification.style.borderLeftColor = color;
 
     if (type === 'confirm') {
+        // Store callback
+        if (onConfirm) {
+            window.__notificationCallbacks[id] = onConfirm;
+        }
+        
         notification.innerHTML = `
             <div style="display: flex; align-items: start;">
                 <i class="bi ${icon}" style="font-size: 2rem; color: ${color}; margin-right: 15px;"></i>
@@ -80,11 +88,11 @@ function showNotification(message, type = 'info', onConfirm = null) {
                     <h5 style="margin: 0 0 10px 0; color: #333;">${title}</h5>
                     <p style="margin: 0 0 15px 0; color: #666;">${message}</p>
                     <div style="display: flex; gap: 10px;">
-                        <button onclick="document.getElementById('${id}').remove(); ${onConfirm ? `(${onConfirm})()` : ''}" 
+                        <button id="${id}-confirm" 
                                 style="flex: 1; padding: 8px 16px; background: ${color}; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
                             Xác nhận
                         </button>
-                        <button onclick="document.getElementById('${id}').remove()" 
+                        <button id="${id}-cancel" 
                                 style="flex: 1; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
                             Hủy
                         </button>
@@ -92,6 +100,24 @@ function showNotification(message, type = 'info', onConfirm = null) {
                 </div>
             </div>
         `;
+        
+        container.appendChild(notification);
+        
+        // Add event listeners
+        document.getElementById(`${id}-confirm`).addEventListener('click', function() {
+            const callback = window.__notificationCallbacks[id];
+            if (callback) {
+                callback();
+                delete window.__notificationCallbacks[id];
+            }
+            document.getElementById(id).remove();
+        });
+        
+        document.getElementById(`${id}-cancel`).addEventListener('click', function() {
+            delete window.__notificationCallbacks[id];
+            document.getElementById(id).remove();
+        });
+        
     } else {
         notification.innerHTML = `
             <div style="display: flex; align-items: start;">
@@ -106,6 +132,8 @@ function showNotification(message, type = 'info', onConfirm = null) {
                 </button>
             </div>
         `;
+        
+        container.appendChild(notification);
 
         // Auto remove after 5 seconds
         setTimeout(() => {
@@ -116,8 +144,6 @@ function showNotification(message, type = 'info', onConfirm = null) {
             }
         }, 5000);
     }
-
-    container.appendChild(notification);
 
     // Add keyframe animations if not exists
     if (!document.getElementById('nnb-notif-styles')) {
