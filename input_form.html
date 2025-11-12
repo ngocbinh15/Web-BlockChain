@@ -315,6 +315,101 @@
     </div>
   </div>
 
+  <!-- Success Modal for Event -->
+  <div class="modal fade" id="eventSuccessModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border: none; border-radius: 20px; overflow: hidden;">
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none;">
+          <h5 class="modal-title">
+            <i class="bi bi-check-circle-fill me-2"></i>Ghi nhận sự kiện thành công!
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center p-4">
+          <div class="mb-3">
+            <i class="bi bi-calendar-check" style="font-size: 3rem; color: #28a745;"></i>
+          </div>
+          <h5 class="mb-3">Sự kiện đã được ghi nhận</h5>
+          <div class="text-start">
+            <div class="mb-2">
+              <small class="text-muted">Mã lô:</small>
+              <div class="fw-bold" id="eventModalBatchCode" style="font-family: monospace;">---</div>
+            </div>
+            <div class="mb-2">
+              <small class="text-muted">Loại sự kiện:</small>
+              <div class="fw-bold" id="eventModalType">---</div>
+            </div>
+            <div class="mb-2">
+              <small class="text-muted">Vị trí:</small>
+              <div class="fw-bold" id="eventModalLocation">---</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border: none; background: #f8f9fa;">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+            <i class="bi bi-check-lg"></i> Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal for Batch Creation -->
+  <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border: none; border-radius: 20px; overflow: hidden;">
+        <div class="modal-header text-white"
+          style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none;">
+          <h5 class="modal-title">
+            <i class="bi bi-check-circle-fill me-2"></i>Tạo lô thành công!
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center p-4">
+          <div class="mb-4">
+            <i class="bi bi-box-seam" style="font-size: 4rem; color: #28a745;"></i>
+          </div>
+          <h4 class="mb-3">Mã lô đã được tạo</h4>
+          <div class="alert alert-success"
+            style="background: #d4edda; border: 2px dashed #28a745; border-radius: 15px;">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="flex-grow-1">
+                <small class="text-muted d-block mb-1">MÃ LÔ</small>
+                <h3 class="mb-0 fw-bold" id="modalBatchCode" style="font-family: monospace; color: #155724;">---</h3>
+              </div>
+              <button class="btn btn-success btn-sm" onclick="copyBatchCodeFromModal()" title="Sao chép mã lô">
+                <i class="bi bi-clipboard"></i> Copy
+              </button>
+            </div>
+          </div>
+          <div class="row text-start mt-3">
+            <div class="col-6 mb-2">
+              <small class="text-muted">Sản phẩm:</small>
+              <div class="fw-bold" id="modalProductName">---</div>
+            </div>
+            <div class="col-6 mb-2">
+              <small class="text-muted">Vị trí:</small>
+              <div class="fw-bold" id="modalLocation">---</div>
+            </div>
+            <div class="col-6 mb-2">
+              <small class="text-muted">Diện tích:</small>
+              <div class="fw-bold" id="modalArea">---</div>
+            </div>
+            <div class="col-6 mb-2">
+              <small class="text-muted">Ngày gieo trồng:</small>
+              <div class="fw-bold" id="modalPlantDate">---</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border: none; background: #f8f9fa;">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+            <i class="bi bi-check-lg"></i> Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap 5 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/main.js"></script>
@@ -409,21 +504,25 @@
         console.log('Response:', result);
 
         if (result.success) {
-          // Hiển thị Token ID
-          document.getElementById('generatedTokenId').textContent = tokenId;
-          document.getElementById('tokenIdDisplay').style.display = 'block';
+          // Hiển thị modal với thông tin chi tiết
+          document.getElementById('modalBatchCode').textContent = tokenId;
+          document.getElementById('modalProductName').textContent = variety;
+          document.getElementById('modalLocation').textContent = location;
+          document.getElementById('modalArea').textContent = `${area} hecta`;
+          document.getElementById('modalPlantDate').textContent = new Date(plantDate).toLocaleDateString('vi-VN');
 
-          // Hiển thị thông báo
-          alert(`✅ Thành công!\n\nMã lô: ${tokenId}\nSản phẩm: ${variety}\nVị trí: ${location}\nDiện tích: ${area} hecta`);
+          // Hiển thị modal
+          const modal = new bootstrap.Modal(document.getElementById('successModal'));
+          modal.show();
 
           // Reset form
           this.reset();
 
-          // Reload danh sách sau 1s
-          setTimeout(() => {
-            document.getElementById('tokenIdDisplay').style.display = 'none';
+          // Reload danh sách sau khi đóng modal
+          document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
             loadTokenIds();
-          }, 1000);
+            loadRecentEvents();
+          }, { once: true });
         } else {
           alert(`❌ Lỗi: ${result.message || 'Không thể tạo lô sản phẩm'}`);
         }
@@ -497,15 +596,26 @@
         console.log('Response:', result);
 
         if (result.success) {
-          alert(`✅ Thành công!\n\nMã lô: ${tokenId}\nSự kiện: ${eventType}\nVị trí: ${eventLocation}`);
+          // Lấy tên sự kiện từ dropdown
+          const eventTypeSelect = document.getElementById('eventType');
+          const eventTypeName = eventTypeSelect.options[eventTypeSelect.selectedIndex].text;
+          
+          // Hiển thị modal với thông tin chi tiết
+          document.getElementById('eventModalBatchCode').textContent = tokenId;
+          document.getElementById('eventModalType').textContent = eventTypeName;
+          document.getElementById('eventModalLocation').textContent = eventLocation || 'Không có';
+          
+          // Hiển thị modal
+          const modal = new bootstrap.Modal(document.getElementById('eventSuccessModal'));
+          modal.show();
 
           // Reset form
           this.reset();
 
-          // Reload danh sách sau 1s
-          setTimeout(() => {
+          // Reload danh sách sau khi đóng modal
+          document.getElementById('eventSuccessModal').addEventListener('hidden.bs.modal', function () {
             loadRecentEvents();
-          }, 1000);
+          }, { once: true });
         } else {
           alert(`❌ Lỗi: ${result.message || 'Không thể thêm sự kiện'}`);
         }
@@ -678,6 +788,29 @@
 
       navigator.clipboard.writeText(tokenId).then(() => {
         alert(`✅ Đã sao chép mã lô: ${tokenId}`);
+      }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('❌ Không thể sao chép. Vui lòng sao chép thủ công.');
+      });
+    }
+
+    // ===== COPY BATCH CODE FROM MODAL =====
+    function copyBatchCodeFromModal() {
+      const batchCode = document.getElementById('modalBatchCode').textContent;
+
+      navigator.clipboard.writeText(batchCode).then(() => {
+        // Thay đổi nút thành "Đã copy"
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> Đã copy!';
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-primary');
+
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('btn-primary');
+          btn.classList.add('btn-success');
+        }, 2000);
       }).catch(err => {
         console.error('Copy failed:', err);
         alert('❌ Không thể sao chép. Vui lòng sao chép thủ công.');
