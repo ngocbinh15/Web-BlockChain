@@ -316,11 +316,14 @@
     // ===== API CONFIG =====
     const API_BASE_URL = 'https://web-blockchain-production.up.railway.app/api';
 
+    // ===== GLOBAL TOKEN =====
+    let token = null;
+
     // ===== CHECK LOGIN =====
     window.addEventListener('DOMContentLoaded', () => {
       const userRole = localStorage.getItem('userRole');
       const username = localStorage.getItem('username');
-      const token = localStorage.getItem('token');
+      token = localStorage.getItem('token');
 
       if (!userRole || !token) {
         alert('⚠️ Bạn cần đăng nhập để sử dụng chức năng này!');
@@ -371,8 +374,15 @@
 
       try {
         // Debug: Kiểm tra token
+        console.log('=== DEBUG BATCH CREATION ===');
         console.log('Token:', token ? 'exists' : 'missing');
         console.log('Token length:', token ? token.length : 0);
+        console.log('Batch data:', {
+          batch_code: tokenId,
+          product_name: `${variety} - ${location}`,
+          quantity: parseFloat(area),
+          unit: 'hecta'
+        });
         
         // Gọi API để tạo batch mới
         const response = await fetch(`${API_BASE_URL}/batches`, {
@@ -389,7 +399,9 @@
           })
         });
 
+        console.log('Response status:', response.status);
         const result = await response.json();
+        console.log('Response data:', result);
 
         if (result.success) {
           // Hiển thị Token ID
