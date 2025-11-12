@@ -316,19 +316,17 @@
     // ===== API CONFIG =====
     const API_BASE_URL = 'https://web-blockchain-production.up.railway.app/api';
 
-    // ===== GLOBAL TOKEN =====
-    let token = null;
-
-    // ===== CHECK LOGIN =====
+    // ===== INIT =====
     window.addEventListener('DOMContentLoaded', () => {
-      const userRole = localStorage.getItem('userRole');
-      const username = localStorage.getItem('username');
-      token = localStorage.getItem('token');
+      const username = localStorage.getItem('username') || 'Guest';
+      const userRole = localStorage.getItem('userRole') || 'guest';
 
-      if (!userRole || !token) {
-        alert('⚠️ Bạn cần đăng nhập để sử dụng chức năng này!');
-        window.location.href = 'login.html';
-        return;
+      // Hiển thị thông tin user (nếu có)
+      if (document.getElementById('userDisplay')) {
+        document.getElementById('userDisplay').innerHTML = `
+          <span class="badge bg-primary me-2">${userRole.toUpperCase()}</span>
+          <span>${username}</span>
+        `;
       }
 
       // Hiển thị tên người dùng
@@ -373,35 +371,32 @@
       const tokenId = generateTokenId(variety, location, plantDate);
 
       try {
-        // Debug: Kiểm tra token
-        console.log('=== DEBUG BATCH CREATION ===');
-        console.log('Token:', token ? 'exists' : 'missing');
-        console.log('Token length:', token ? token.length : 0);
-        console.log('Batch data:', {
-          batch_code: tokenId,
-          product_name: `${variety} - ${location}`,
-          quantity: parseFloat(area),
-          unit: 'hecta'
-        });
-        
-        // Gọi API để tạo batch mới
-        const response = await fetch(`${API_BASE_URL}/batches`, {
+        console.log('=== CREATING BATCH ===');
+        console.log('Token ID:', tokenId);
+        console.log('Data:', { variety, location, area, plantDate });
+
+        // Gọi API SIMPLE - KHÔNG CẦN TOKEN
+        const response = await fetch(`${API_BASE_URL}/batches/simple`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             batch_code: tokenId,
             product_name: `${variety} - ${location}`,
             quantity: parseFloat(area),
-            unit: 'hecta'
+            unit: 'hecta',
+            variety: variety,
+            location: location,
+            area: parseFloat(area),
+            plant_date: plantDate,
+            notes: note
           })
         });
 
         console.log('Response status:', response.status);
         const result = await response.json();
-        console.log('Response data:', result);
+        console.log('Response:', result);
 
         if (result.success) {
           // Hiển thị Token ID
@@ -409,32 +404,22 @@
           document.getElementById('tokenIdDisplay').style.display = 'block';
 
           // Hiển thị thông báo
-          showToast(`✅ Lô sản phẩm đã được tạo thành công!\n\nToken ID: ${tokenId}\n\n🔗 Giao dịch đã được ghi nhận trên blockchain.`);
+          alert(`✅ Thành công!\n\nMã lô: ${tokenId}\nSản phẩm: ${variety}\nVị trí: ${location}\nDiện tích: ${area} hecta`);
 
-          // Reset form sau 3s
+          // Reset form
+          this.reset();
+
+          // Reload danh sách sau 1s
           setTimeout(() => {
-            this.reset();
             document.getElementById('tokenIdDisplay').style.display = 'none';
-            loadTokenIds(); // Reload danh sách
-          }, 3000);
+            loadTokenIds();
+          }, 1000);
         } else {
-          throw new Error(result.message || 'API failed');
+          alert(`❌ Lỗi: ${result.message || 'Không thể tạo lô sản phẩm'}`);
         }
       } catch (error) {
         console.error('Create batch error:', error);
-
-        // Hiển thị lỗi chi tiết - KHÔNG fallback localStorage
-        let errorMsg = '❌ Không thể tạo lô sản phẩm!\n\n';
-        if (error.message && error.message.includes('fetch')) {
-          errorMsg += '🔌 Lỗi kết nối server.\n\n';
-        } else if (!token) {
-          errorMsg += '🔑 Bạn cần đăng nhập lại.\n\n';
-        } else {
-          errorMsg += `📝 ${error.message}\n\n`;
-        }
-        errorMsg += 'Vui lòng thử lại hoặc liên hệ admin.';
-
-        showToast(errorMsg);
+        alert(`❌ Lỗi kết nối!\n\n${error.message}\n\nVui lòng kiểm tra kết nối internet và thử lại.`);
       }
     });    // ===== SINH TOKEN ID MÔ PHỎNG =====
     function generateTokenId(variety, location, date) {
