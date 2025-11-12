@@ -4,6 +4,19 @@
 <head>
   <title>Tạo dữ liệu mẫu</title>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    #log p {
+      margin: 5px 0;
+    }
+  </style>
 </head>
 
 <body>
@@ -18,7 +31,7 @@
       try {
         // Tạo 3 lô
         const batches = [
-          { batch_code: 'BC001', product_name: 'Nàng hoa 9', quantity: 2500, unit: 'kg', created_by: 'admin' },
+          { batch_code: 'BC001', product_name: 'Nang hoa 9', quantity: 2500, unit: 'kg', created_by: 'admin' },
           { batch_code: 'BC002', product_name: 'ST25', quantity: 3000, unit: 'kg', created_by: 'admin' },
           { batch_code: 'BC003', product_name: 'Jasmine 85', quantity: 1500, unit: 'kg', created_by: 'admin' }
         ];
@@ -30,16 +43,29 @@
             body: JSON.stringify(batch)
           });
           const data = await res.json();
-          log.innerHTML += `<p>✅ Đã tạo lô ${batch.batch_code}</p>`;
+          log.innerHTML += `<p>✅ Đã tạo lô ${batch.batch_code} - ${batch.product_name}</p>`;
           console.log(data);
         }
 
-        // Thêm sự kiện cho BC001
+        // Thêm nhiều sự kiện cho mỗi lô
         const events = [
-          { batch_code: 'BC001', action: 'Gieo trồng', description: 'Gieo giống Nàng hoa 9', location: 'Xã Tân Phú, Huyện Vĩnh Cửu, Tỉnh Đồng Nai' },
-          { batch_code: 'BC001', action: 'Chăm sóc', description: 'Bón phân lần 1', location: 'Xã Tân Phú, Huyện Vĩnh Cửu, Tỉnh Đồng Nai' },
-          { batch_code: 'BC002', action: 'Gieo trồng', description: 'Gieo giống ST25', location: 'Đồng Tháp' },
-          { batch_code: 'BC003', action: 'Gieo trồng', description: 'Gieo giống Jasmine 85', location: 'An Giang' }
+          // BC001 - Nang hoa 9
+          { batch_code: 'BC001', action: 'Gieo trong', description: 'Gieo giong Nang hoa 9 tai ruong', location: 'Xa Tan Phu, Huyen Vinh Cuu, Tinh Dong Nai' },
+          { batch_code: 'BC001', action: 'Cham soc', description: 'Bon phan lan 1 - NPK 16-16-8', location: 'Xa Tan Phu, Huyen Vinh Cuu, Tinh Dong Nai' },
+          { batch_code: 'BC001', action: 'Cham soc', description: 'Phun thuoc tru sau benh', location: 'Xa Tan Phu, Huyen Vinh Cuu, Tinh Dong Nai' },
+          { batch_code: 'BC001', action: 'Thu hoach', description: 'Thu hoach lua - do am 14%', location: 'Xa Tan Phu, Huyen Vinh Cuu, Tinh Dong Nai' },
+          { batch_code: 'BC001', action: 'Van chuyen', description: 'Van chuyen ve nha may xay xat', location: 'Nha may ABC - Dong Nai' },
+
+          // BC002 - ST25
+          { batch_code: 'BC002', action: 'Gieo trong', description: 'Gieo giong ST25 cao cap', location: 'Dong Thap, Viet Nam' },
+          { batch_code: 'BC002', action: 'Cham soc', description: 'Bon phan huu co', location: 'Dong Thap, Viet Nam' },
+          { batch_code: 'BC002', action: 'Cham soc', description: 'Kiem soat dich hai', location: 'Dong Thap, Viet Nam' },
+          { batch_code: 'BC002', action: 'Thu hoach', description: 'Thu hoach lua ST25', location: 'Dong Thap, Viet Nam' },
+
+          // BC003 - Jasmine 85
+          { batch_code: 'BC003', action: 'Gieo trong', description: 'Gieo giong Jasmine 85', location: 'An Giang, Viet Nam' },
+          { batch_code: 'BC003', action: 'Cham soc', description: 'Tuoi nuoc va bon phan', location: 'An Giang, Viet Nam' },
+          { batch_code: 'BC003', action: 'Thu hoach', description: 'Thu hoach lua Jasmine', location: 'An Giang, Viet Nam' }
         ];
 
         for (const event of events) {
@@ -55,10 +81,15 @@
           const data = await res.json();
           log.innerHTML += `<p>✅ Đã thêm sự kiện "${event.action}" cho ${event.batch_code}</p>`;
           console.log(data);
+
+          // Đợi 200ms giữa các request để tránh quá tải
+          await new Promise(resolve => setTimeout(resolve, 200));
         }
 
-        log.innerHTML += '<h2 style="color: green;">✅ Hoàn tất! Đã tạo 3 lô mẫu: BC001, BC002, BC003</h2>';
-        log.innerHTML += '<p><a href="traceability.html">Đi đến trang truy xuất</a></p>';
+        log.innerHTML += '<h2 style="color: green;">✅ Hoàn tất!</h2>';
+        log.innerHTML += '<p><strong>Đã tạo 3 lô mẫu:</strong></p>';
+        log.innerHTML += '<ul><li>BC001 - Nang hoa 9 (5 sự kiện)</li><li>BC002 - ST25 (4 sự kiện)</li><li>BC003 - Jasmine 85 (3 sự kiện)</li></ul>';
+        log.innerHTML += '<p><a href="traceability.html" style="display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Đi đến trang truy xuất</a></p>';
 
       } catch (err) {
         log.innerHTML += `<p style="color: red;">❌ Lỗi: ${err.message}</p>`;
