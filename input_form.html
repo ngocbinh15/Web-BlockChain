@@ -201,11 +201,17 @@
                     <label for="tokenId" class="form-label">
                       <i class="bi bi-key"></i> Token ID / Mã lô <span class="text-danger">*</span>
                     </label>
-                    <select class="form-select" id="tokenId" required>
-                      <option value="" selected disabled>-- Chọn lô sản phẩm --</option>
-                      <!-- Sẽ được load từ localStorage hoặc dữ liệu mẫu -->
-                    </select>
-                    <small class="text-muted">Hoặc nhập mã lô thủ công nếu không tìm thấy</small>
+                    <div class="input-group">
+                      <select class="form-select" id="tokenId" required>
+                        <option value="" selected disabled>-- Chọn lô sản phẩm --</option>
+                        <!-- Sẽ được load từ API -->
+                      </select>
+                      <button class="btn btn-outline-success" type="button" onclick="copySelectedTokenId()"
+                        title="Sao chép mã lô">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                    <small class="text-muted">Chọn mã lô đã tạo hoặc nhập thủ công</small>
                   </div>
 
                   <!-- Loại sự kiện -->
@@ -553,40 +559,124 @@
       }
     }
 
-    // ===== LOAD RECENT EVENTS =====
-    function loadRecentEvents() {
-      const events = JSON.parse(localStorage.getItem('riceEvents') || '[]');
+    // ===== LOAD RECENT EVENTS FROM API =====
+    async function loadRecentEvents() {
       const container = document.getElementById('recentEvents');
 
-      if (events.length === 0) {
+      try {
+        // Gọi API lấy tất cả batches với transactions
+        const response = await fetch(`${API_BASE_URL}/batches`);
+
+        if (!response.ok) {
+          throw new Error('Cannot fetch events');
+        }
+
+        const result = await response.json();
+        console.log('Loaded events:', result);
+
+        // Lấy tất cả transactions từ tất cả batches
+        let allTransactions = [];
+
+        if (result.success && result.batches && result.batches.length > 0) {
+          // Lấy chi tiết từng batch để có transactions
+          for (let batch of result.batches.slice(0, 5)) { // Chỉ lấy 5 batches gần nhất
+            try {
+              const detailResponse = await fetch(`${API_BASE_URL}/batches/${batch.batch_code}`);
+              const detailResult = await detailResponse.json();
+
+              if (detailResult.success && detailResult.transactions) {
+                detailResult.transactions.forEach(trans => {
+                  allTransactions.push({
+                    ...trans,
+                    batch_code: batch.batch_code,
+                    product_name: batch.product_name
+                  });
+                });
+              }
+            } catch (err) {
+              console.error('Error loading batch details:', err);
+            }
+          }
+        }
+
+        // Sắp xếp theo thời gian mới nhất
+        allTransactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        if (allTransactions.length === 0) {
+          container.innerHTML = `
+            <div class="text-center text-muted py-3">
+              <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+              <p class="mb-0 mt-2">Chưa có sự kiện nào được ghi nhận</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = '';
+        allTransactions.slice(0, 10).forEach(event => {
+          const item = document.createElement('div');
+          item.className = 'list-group-item';
+
+          // Map action to icon
+          let icon = '📝';
+          let actionName = event.action;
+          switch (event.action) {
+            case 'CREATE': icon = '🌱'; actionName = 'Tạo lô'; break;
+            case 'fertilizing': icon = '🌱'; actionName = 'Bón phân'; break;
+            case 'irrigation': icon = '💧'; actionName = 'Tưới tiêu'; break;
+            case 'harvesting': icon = '🌾'; actionName = 'Thu hoạch'; break;
+            case 'milling': icon = '🏭'; actionName = 'Xay xát'; break;
+            case 'packaging': icon = '📦'; actionName = 'Đóng gói'; break;
+            case 'shipping': icon = '🚚'; actionName = 'Vận chuyển'; break;
+            case 'warehouse_in': icon = '📥'; actionName = 'Nhập kho'; break;
+            case 'warehouse_out': icon = '📤'; actionName = 'Xuất kho'; break;
+            case 'quality_check': icon = '✅'; actionName = 'Kiểm tra chất lượng'; break;
+            case 'distribution': icon = '🏪'; actionName = 'Phân phối'; break;
+          }
+
+          item.innerHTML = `
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <h6 class="mb-1">${icon} ${actionName}</h6>
+                <p class="mb-1 small">${event.description || ''}</p>
+                <small class="text-muted">
+                  <i class="bi bi-key"></i> ${event.batch_code} | 
+                  <i class="bi bi-box"></i> ${event.product_name || 'N/A'} |
+                  <i class="bi bi-clock"></i> ${new Date(event.timestamp).toLocaleString('vi-VN')}
+                  ${event.location ? `| <i class="bi bi-geo-alt"></i> ${event.location}` : ''}
+                </small>
+              </div>
+              <span class="badge bg-success">Đã ghi nhận</span>
+            </div>
+          `;
+          container.appendChild(item);
+        });
+      } catch (error) {
+        console.error('Load events error:', error);
         container.innerHTML = `
-                    <div class="text-center text-muted py-3">
-                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
-                        <p class="mb-0 mt-2">Chưa có sự kiện nào được ghi nhận</p>
-                    </div>
-                `;
+          <div class="text-center text-muted py-3">
+            <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+            <p class="mb-0 mt-2">Không thể tải danh sách sự kiện</p>
+          </div>
+        `;
+      }
+    }
+
+    // ===== COPY SELECTED TOKEN ID =====
+    function copySelectedTokenId() {
+      const select = document.getElementById('tokenId');
+      const tokenId = select.value;
+
+      if (!tokenId) {
+        alert('⚠️ Vui lòng chọn mã lô trước!');
         return;
       }
 
-      container.innerHTML = '';
-      events.slice(0, 5).forEach(event => {
-        const item = document.createElement('div');
-        item.className = 'list-group-item';
-        item.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">${event.typeName}</h6>
-                            <p class="mb-1 small">${event.description}</p>
-                            <small class="text-muted">
-                                <i class="bi bi-key"></i> ${event.tokenId} | 
-                                <i class="bi bi-clock"></i> ${new Date(event.time).toLocaleString('vi-VN')} |
-                                <i class="bi bi-hash"></i> ${event.blockHash}
-                            </small>
-                        </div>
-                        <span class="badge bg-success">Đã ghi nhận</span>
-                    </div>
-                `;
-        container.appendChild(item);
+      navigator.clipboard.writeText(tokenId).then(() => {
+        alert(`✅ Đã sao chép mã lô: ${tokenId}`);
+      }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('❌ Không thể sao chép. Vui lòng sao chép thủ công.');
       });
     }
 
