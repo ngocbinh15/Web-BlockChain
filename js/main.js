@@ -87,13 +87,13 @@ function showNotification(message, type = 'info', onConfirm = null) {
                 <div style="flex: 1;">
                     <h5 style="margin: 0 0 10px 0; color: #333;">${title}</h5>
                     <p style="margin: 0 0 15px 0; color: #666; white-space: pre-line;">${message}</p>
-                    <div style="display: flex; gap: 10px;">
+                    <div style="display: flex !important; gap: 10px; margin-top: 15px;">
                         <button class="nnb-confirm-btn" data-id="${id}"
-                                style="flex: 1; padding: 12px 20px; background: ${color}; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                                style="flex: 1 !important; padding: 12px 20px !important; background: ${color} !important; color: white !important; border: none !important; border-radius: 8px !important; cursor: pointer !important; font-weight: bold !important; font-size: 14px !important; display: block !important;">
                             ✓ Xác nhận
                         </button>
                         <button class="nnb-cancel-btn" data-id="${id}"
-                                style="flex: 1; padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                                style="flex: 1 !important; padding: 12px 20px !important; background: #6c757d !important; color: white !important; border: none !important; border-radius: 8px !important; cursor: pointer !important; font-size: 14px !important; display: block !important;">
                             ✕ Hủy
                         </button>
                     </div>
