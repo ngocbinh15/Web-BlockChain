@@ -463,11 +463,11 @@
 
     // ===== LOGOUT =====
     function logout() {
-      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+      showNotification('Bạn có chắc muốn đăng xuất?', 'confirm', () => {
         localStorage.removeItem('userRole');
         localStorage.removeItem('username');
         window.location.href = 'login.html';
-      }
+      });
     }
 
     // ===== UC2: TẠO LÔ SẢN PHẨM MỚI =====

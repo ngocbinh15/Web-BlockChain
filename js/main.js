@@ -1,5 +1,155 @@
 // ===== MAIN.JS - Common JavaScript functions =====
 
+// ===== GLOBAL NOTIFICATION SYSTEM =====
+// Inject notification container and styles on page load
+(function() {
+    // Add notification container to body
+    if (!document.getElementById('nnb-notification-container')) {
+        const container = document.createElement('div');
+        container.id = 'nnb-notification-container';
+        container.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            max-width: 400px;
+        `;
+        document.body.appendChild(container);
+    }
+})();
+
+/**
+ * Show beautiful notification
+ * @param {string} message - Message to display
+ * @param {string} type - Type: success, error, warning, info, confirm
+ * @param {function} onConfirm - Callback for confirm dialogs
+ */
+function showNotification(message, type = 'info', onConfirm = null) {
+    const container = document.getElementById('nnb-notification-container');
+    if (!container) return;
+
+    const id = 'notif-' + Date.now();
+    const notification = document.createElement('div');
+    notification.id = id;
+    notification.style.cssText = `
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        padding: 20px;
+        margin-bottom: 15px;
+        animation: slideInRight 0.3s ease-out;
+        border-left: 5px solid;
+        position: relative;
+    `;
+
+    let color, icon, title;
+    switch(type) {
+        case 'success':
+            color = '#28a745';
+            icon = 'bi-check-circle-fill';
+            title = 'Thành công';
+            break;
+        case 'error':
+            color = '#dc3545';
+            icon = 'bi-x-circle-fill';
+            title = 'Lỗi';
+            break;
+        case 'warning':
+            color = '#ffc107';
+            icon = 'bi-exclamation-triangle-fill';
+            title = 'Cảnh báo';
+            break;
+        case 'confirm':
+            color = '#17a2b8';
+            icon = 'bi-question-circle-fill';
+            title = 'Xác nhận';
+            break;
+        default:
+            color = '#17a2b8';
+            icon = 'bi-info-circle-fill';
+            title = 'Thông báo';
+    }
+
+    notification.style.borderLeftColor = color;
+
+    if (type === 'confirm') {
+        notification.innerHTML = `
+            <div style="display: flex; align-items: start;">
+                <i class="bi ${icon}" style="font-size: 2rem; color: ${color}; margin-right: 15px;"></i>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 10px 0; color: #333;">${title}</h5>
+                    <p style="margin: 0 0 15px 0; color: #666;">${message}</p>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="document.getElementById('${id}').remove(); ${onConfirm ? `(${onConfirm})()` : ''}" 
+                                style="flex: 1; padding: 8px 16px; background: ${color}; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                            Xác nhận
+                        </button>
+                        <button onclick="document.getElementById('${id}').remove()" 
+                                style="flex: 1; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            Hủy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        notification.innerHTML = `
+            <div style="display: flex; align-items: start;">
+                <i class="bi ${icon}" style="font-size: 2rem; color: ${color}; margin-right: 15px;"></i>
+                <div style="flex: 1;">
+                    <h5 style="margin: 0 0 5px 0; color: #333;">${title}</h5>
+                    <p style="margin: 0; color: #666; white-space: pre-line;">${message}</p>
+                </div>
+                <button onclick="document.getElementById('${id}').remove()" 
+                        style="background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer; padding: 0; margin-left: 10px;">
+                    ×
+                </button>
+            </div>
+        `;
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => el.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    container.appendChild(notification);
+
+    // Add keyframe animations if not exists
+    if (!document.getElementById('nnb-notif-styles')) {
+        const style = document.createElement('style');
+        style.id = 'nnb-notif-styles';
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Override native alert and confirm
+window.alert = function(message) {
+    console.warn('Alert overridden:', message);
+    showNotification(String(message), 'info');
+};
+
+window.confirm = function(message) {
+    console.warn('Confirm overridden:', message);
+    return new Promise((resolve) => {
+        showNotification(String(message), 'confirm', () => resolve(true));
+    });
+};
+
 // ===== UTILITY FUNCTIONS =====
 
 /**

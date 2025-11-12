@@ -576,7 +576,7 @@
 
         // Kiểm tra xem đã chọn vai trò chưa
         if (!role) {
-          alert('Vui lòng chọn vai trò!');
+          showNotification('Vui lòng chọn vai trò!', 'warning');
           return;
         }
 
@@ -621,20 +621,20 @@
                   window.location.href = 'traceability.html';
                   break;
                 default:
-                  alert('Vai trò không hợp lệ!');
+                  showNotification('Vai trò không hợp lệ!', 'error');
                   btn.innerHTML = originalText;
                   btn.disabled = false;
               }
             }, 500);
           } else {
             // Hiển thị lỗi
-            alert(data.message || 'Đăng nhập thất bại!');
+            showNotification(data.message || 'Đăng nhập thất bại!', 'error');
             btn.innerHTML = originalText;
             btn.disabled = false;
           }
         } catch (error) {
           console.error('Login error:', error);
-          alert('Không thể kết nối đến server. Vui lòng thử lại!');
+          showNotification('Không thể kết nối đến server. Vui lòng thử lại!', 'error');
           btn.innerHTML = originalText;
           btn.disabled = false;
         }

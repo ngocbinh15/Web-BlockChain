@@ -1049,8 +1049,10 @@
 
       // Kiểm tra đăng nhập
       if (!userRole || userRole !== 'admin') {
-        alert('Bạn cần đăng nhập với quyền Admin!');
-        window.location.href = 'login.html';
+        showNotification('Bạn cần đăng nhập với quyền Admin!', 'error');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
         return;
       }
 
@@ -1082,11 +1084,11 @@
 
     // ===== LOGOUT =====
     function logout() {
-      if (confirm('Bạn có chắc muốn đăng xuất?')) {
+      showNotification('Bạn có chắc muốn đăng xuất?', 'confirm', () => {
         localStorage.removeItem('userRole');
         localStorage.removeItem('username');
         window.location.href = 'login.html';
-      }
+      });
     }
 
     // ===== INIT CHARTS =====
@@ -1228,12 +1230,12 @@
       const status = document.getElementById('newUserStatus').value;
 
       if (!name || !email) {
-        alert('Vui lòng điền đầy đủ thông tin!');
+        showNotification('Vui lòng điền đầy đủ thông tin!', 'warning');
         return;
       }
 
       // Mô phỏng thêm người dùng vào blockchain
-      alert(`✅ Đã thêm người dùng mới vào hệ thống!\n\nTên: ${name}\nEmail: ${email}\nVai trò: ${role}\nTrạng thái: ${status}\n\n🔗 Giao dịch đã được ghi nhận trên blockchain.`);
+      showNotification(`✅ Đã thêm người dùng mới vào hệ thống!\n\nTên: ${name}\nEmail: ${email}\nVai trò: ${role}\nTrạng thái: ${status}\n\n🔗 Giao dịch đã được ghi nhận trên blockchain.`, 'success');
 
       // Đóng modal
       bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
@@ -1548,7 +1550,7 @@
     function viewUserDetail(userId) {
       const user = dummyUsers.find(u => u.id === userId);
       if (!user) {
-        alert('Không tìm thấy người dùng!');
+        showNotification('Không tìm thấy người dùng!', 'error');
         return;
       }
 
@@ -1583,7 +1585,7 @@
     function editUser(userId) {
       const user = dummyUsers.find(u => u.id === userId);
       if (!user) {
-        alert('Không tìm thấy người dùng!');
+        showNotification('Không tìm thấy người dùng!', 'error');
         return;
       }
 
@@ -1601,27 +1603,27 @@
       const modal = new bootstrap.Modal(document.getElementById('addUserModal'));
       modal.show();
 
-      alert(`Đang chỉnh sửa thông tin người dùng: ${user.name}\n(Demo: Chức năng lưu sẽ được tích hợp với backend)`);
+      showNotification(`Đang chỉnh sửa thông tin người dùng: ${user.name}\n(Demo: Chức năng lưu sẽ được tích hợp với backend)`, 'info');
     }
 
     // ===== XÓA NGƯỜI DÙNG =====
     function deleteUser(userId) {
       const user = dummyUsers.find(u => u.id === userId);
       if (!user) {
-        alert('Không tìm thấy người dùng!');
+        showNotification('Không tìm thấy người dùng!', 'error');
         return;
       }
 
-      if (confirm(`⚠️ Bạn có chắc muốn xóa người dùng "${user.name}"?\n\nThao tác này không thể hoàn tác!`)) {
+      showNotification(`⚠️ Bạn có chắc muốn xóa người dùng "${user.name}"?\n\nThao tác này không thể hoàn tác!`, 'confirm', () => {
         // Mô phỏng xóa trên blockchain
         const txHash = '0x' + Math.random().toString(16).substring(2, 18);
-        alert(`✅ Đã xóa người dùng "${user.name}" thành công!\n\n🔗 Transaction Hash: ${txHash}\nGiao dịch đã được ghi nhận trên blockchain.`);
+        showNotification(`✅ Đã xóa người dùng "${user.name}" thành công!\n\n🔗 Transaction Hash: ${txHash}\nGiao dịch đã được ghi nhận trên blockchain.`, 'success');
 
         // Trong thực tế sẽ xóa khỏi array và localStorage
         // const index = dummyUsers.findIndex(u => u.id === userId);
         // dummyUsers.splice(index, 1);
         // renderUserTable();
-      }
+      });
     }
 
     // ===== HIỂN THỊ MODAL THÊM NGƯỜI DÙNG =====
@@ -1707,7 +1709,7 @@
       }
 
       if (!batch) {
-        alert('Không tìm thấy thông tin lô sản phẩm!');
+        showNotification('Không tìm thấy thông tin lô sản phẩm!', 'error');
         return;
       }
 
@@ -1784,7 +1786,7 @@
       }
 
       if (!batch) {
-        alert('Không tìm thấy thông tin lô sản phẩm!');
+        showNotification('Không tìm thấy thông tin lô sản phẩm!', 'error');
         return;
       }
 
@@ -1812,7 +1814,7 @@
       const note = document.getElementById('editNote').value;
 
       if (!variety || !location || !area) {
-        alert('Vui lòng điền đầy đủ thông tin!');
+        showNotification('Vui lòng điền đầy đủ thông tin!', 'warning');
         return;
       }
 
@@ -1837,7 +1839,7 @@
       // Mô phỏng ghi lên blockchain
       const blockHash = '0x' + Math.random().toString(16).substring(2, 18);
 
-      alert(`✅ Đã cập nhật thông tin lô ${tokenId} thành công!\n\nGiống lúa: ${variety}\nKhu vực: ${location}\nDiện tích: ${area} ha\nTrạng thái: ${status}\n\n🔗 Block Hash: ${blockHash}\nGiao dịch đã được ghi nhận trên blockchain.`);
+      showNotification(`✅ Đã cập nhật thông tin lô ${tokenId} thành công!\n\nGiống lúa: ${variety}\nKhu vực: ${location}\nDiện tích: ${area} ha\nTrạng thái: ${status}\n\n🔗 Block Hash: ${blockHash}\nGiao dịch đã được ghi nhận trên blockchain.`, 'success');
 
       // Đóng modal
       bootstrap.Modal.getInstance(document.getElementById('editBatchModal')).hide();
@@ -1847,8 +1849,10 @@
     }
 
     function showAddBatchModal() {
-      alert('Chức năng thêm lô mới (chuyển đến input_form.html để tạo lô)');
-      window.location.href = 'input_form.html';
+      showNotification('Chuyển đến trang tạo lô mới...', 'info');
+      setTimeout(() => {
+        window.location.href = 'input_form.html';
+      }, 1000);
     }
   </script>
 

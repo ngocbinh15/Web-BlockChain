@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Notification System</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      padding: 50px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    .test-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-test {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="test-container">
+    <h1 class="text-center mb-4">🎨 Test Hệ Thống Thông Báo</h1>
+    <p class="text-center text-muted mb-5">Nhấn các nút bên dưới để test các loại thông báo khác nhau</p>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <button class="btn btn-success btn-test" onclick="testSuccess()">
+          <i class="bi bi-check-circle me-2"></i> Success Notification
+        </button>
+      </div>
+      <div class="col-md-6 mb-3">
+        <button class="btn btn-danger btn-test" onclick="testError()">
+          <i class="bi bi-x-circle me-2"></i> Error Notification
+        </button>
+      </div>
+      <div class="col-md-6 mb-3">
+        <button class="btn btn-warning btn-test" onclick="testWarning()">
+          <i class="bi bi-exclamation-triangle me-2"></i> Warning Notification
+        </button>
+      </div>
+      <div class="col-md-6 mb-3">
+        <button class="btn btn-info btn-test" onclick="testInfo()">
+          <i class="bi bi-info-circle me-2"></i> Info Notification
+        </button>
+      </div>
+      <div class="col-12 mb-3">
+        <button class="btn btn-primary btn-test" onclick="testConfirm()">
+          <i class="bi bi-question-circle me-2"></i> Confirm Dialog
+        </button>
+      </div>
+      <div class="col-12 mb-3">
+        <button class="btn btn-secondary btn-test" onclick="testAlert()">
+          <i class="bi bi-bell me-2"></i> Test Alert Override
+        </button>
+      </div>
+      <div class="col-12 mb-3">
+        <button class="btn btn-dark btn-test" onclick="testMultiple()">
+          <i class="bi bi-stack me-2"></i> Multiple Notifications
+        </button>
+      </div>
+    </div>
+
+    <div class="alert alert-info mt-4">
+      <i class="bi bi-lightbulb me-2"></i>
+      <strong>Lưu ý:</strong> Tất cả các thông báo sẽ tự động đóng sau 5 giây (trừ Confirm)
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Main.js - Global notification system -->
+  <script src="js/main.js"></script>
+
+  <script>
+    function testSuccess() {
+      showNotification('✅ Đã tạo lô sản phẩm thành công!\n\nMã lô: BC123456\nSản phẩm: Gạo ST25\nSố lượng: 1000 kg', 'success');
+    }
+
+    function testError() {
+      showNotification('❌ Không thể kết nối đến server!\n\nVui lòng kiểm tra:\n- Kết nối internet\n- Trạng thái server\n- Thử lại sau', 'error');
+    }
+
+    function testWarning() {
+      showNotification('⚠️ Vui lòng điền đầy đủ thông tin!\n\nCác trường bắt buộc:\n- Tên sản phẩm\n- Số lượng\n- Đơn vị', 'warning');
+    }
+
+    function testInfo() {
+      showNotification('ℹ️ Hệ thống đã được cập nhật!\n\nPhiên bản: v2.0.0\nNgày: ' + new Date().toLocaleDateString('vi-VN'), 'info');
+    }
+
+    function testConfirm() {
+      showNotification('⚠️ Bạn có chắc muốn xóa lô sản phẩm này?\n\nThao tác này không thể hoàn tác!', 'confirm', () => {
+        showNotification('✅ Đã xóa lô sản phẩm thành công!', 'success');
+      });
+    }
+
+    function testAlert() {
+      // Test alert override
+      alert('Đây là native alert - nhưng đã bị override thành notification đẹp!');
+    }
+
+    function testMultiple() {
+      showNotification('Thông báo 1: Success', 'success');
+      setTimeout(() => showNotification('Thông báo 2: Info', 'info'), 500);
+      setTimeout(() => showNotification('Thông báo 3: Warning', 'warning'), 1000);
+      setTimeout(() => showNotification('Thông báo 4: Error', 'error'), 1500);
+    }
+  </script>
+</body>
+
+</html>
