@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Tạo dữ liệu mẫu</title>
+  <meta charset="UTF-8">
+</head>
+
+<body>
+  <h1>Đang tạo dữ liệu mẫu...</h1>
+  <div id="log"></div>
+
+  <script>
+    const API_BASE = 'https://web-blockchain-production.up.railway.app/api';
+    const log = document.getElementById('log');
+
+    async function createSampleData() {
+      try {
+        // Tạo 3 lô
+        const batches = [
+          { batch_code: 'BC001', product_name: 'Nàng hoa 9', quantity: 2500, unit: 'kg', created_by: 'admin' },
+          { batch_code: 'BC002', product_name: 'ST25', quantity: 3000, unit: 'kg', created_by: 'admin' },
+          { batch_code: 'BC003', product_name: 'Jasmine 85', quantity: 1500, unit: 'kg', created_by: 'admin' }
+        ];
+
+        for (const batch of batches) {
+          const res = await fetch(`${API_BASE}/batches/simple`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(batch)
+          });
+          const data = await res.json();
+          log.innerHTML += `<p>✅ Đã tạo lô ${batch.batch_code}</p>`;
+          console.log(data);
+        }
+
+        // Thêm sự kiện cho BC001
+        const events = [
+          { batch_code: 'BC001', action: 'Gieo trồng', description: 'Gieo giống Nàng hoa 9', location: 'Xã Tân Phú, Huyện Vĩnh Cửu, Tỉnh Đồng Nai' },
+          { batch_code: 'BC001', action: 'Chăm sóc', description: 'Bón phân lần 1', location: 'Xã Tân Phú, Huyện Vĩnh Cửu, Tỉnh Đồng Nai' },
+          { batch_code: 'BC002', action: 'Gieo trồng', description: 'Gieo giống ST25', location: 'Đồng Tháp' },
+          { batch_code: 'BC003', action: 'Gieo trồng', description: 'Gieo giống Jasmine 85', location: 'An Giang' }
+        ];
+
+        for (const event of events) {
+          const res = await fetch(`${API_BASE}/batches/${event.batch_code}/transaction/simple`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: event.action,
+              description: event.description,
+              location: event.location
+            })
+          });
+          const data = await res.json();
+          log.innerHTML += `<p>✅ Đã thêm sự kiện "${event.action}" cho ${event.batch_code}</p>`;
+          console.log(data);
+        }
+
+        log.innerHTML += '<h2 style="color: green;">✅ Hoàn tất! Đã tạo 3 lô mẫu: BC001, BC002, BC003</h2>';
+        log.innerHTML += '<p><a href="traceability.html">Đi đến trang truy xuất</a></p>';
+
+      } catch (err) {
+        log.innerHTML += `<p style="color: red;">❌ Lỗi: ${err.message}</p>`;
+        console.error(err);
+      }
+    }
+
+    createSampleData();
+  </script>
+</body>
+
+</html>
