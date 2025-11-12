@@ -322,8 +322,8 @@
       const username = localStorage.getItem('username');
       const token = localStorage.getItem('token');
 
-      if (!userRole) {
-        alert('Bạn cần đăng nhập!');
+      if (!userRole || !token) {
+        alert('⚠️ Bạn cần đăng nhập để sử dụng chức năng này!');
         window.location.href = 'login.html';
         return;
       }
@@ -409,40 +409,20 @@
       } catch (error) {
         console.error('Create batch error:', error);
 
-        // Fallback: Lưu vào localStorage nếu API lỗi
-        const batch = {
-          tokenId: tokenId,
-          variety: variety,
-          location: location,
-          area: area,
-          plantDate: plantDate,
-          note: note,
-          creator: username || 'Unknown',
-          createdAt: new Date().toISOString(),
-          status: 'Đang canh tác'
-        };
+        // Hiển thị lỗi chi tiết - KHÔNG fallback localStorage
+        let errorMsg = '❌ Không thể tạo lô sản phẩm!\n\n';
+        if (error.message && error.message.includes('fetch')) {
+          errorMsg += '🔌 Lỗi kết nối server.\n\n';
+        } else if (!token) {
+          errorMsg += '🔑 Bạn cần đăng nhập lại.\n\n';
+        } else {
+          errorMsg += `📝 ${error.message}\n\n`;
+        }
+        errorMsg += 'Vui lòng thử lại hoặc liên hệ admin.';
 
-        let batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
-        batches.push(batch);
-        localStorage.setItem('riceBatches', JSON.stringify(batches));
-
-        // Hiển thị Token ID
-        document.getElementById('generatedTokenId').textContent = tokenId;
-        document.getElementById('tokenIdDisplay').style.display = 'block';
-
-        // Hiển thị thông báo
-        showToast(`⚠️ Lưu offline thành công!\n\nToken ID: ${tokenId}\n\n(Dữ liệu chỉ có trên thiết bị này)`);
-
-        // Reset form sau 3s
-        setTimeout(() => {
-          this.reset();
-          document.getElementById('tokenIdDisplay').style.display = 'none';
-          loadTokenIds();
-        }, 3000);
+        showToast(errorMsg);
       }
-    });
-
-    // ===== SINH TOKEN ID MÔ PHỎNG =====
+    });    // ===== SINH TOKEN ID MÔ PHỎNG =====
     function generateTokenId(variety, location, date) {
       const timestamp = new Date().getTime();
       const random = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -513,35 +493,20 @@
       } catch (error) {
         console.error('Add event error:', error);
 
-        // Fallback: Lưu vào localStorage nếu API lỗi
-        const event = {
-          tokenId: tokenId,
-          type: eventType,
-          typeName: document.getElementById('eventType').selectedOptions[0].text,
-          time: eventTime,
-          location: eventLocation,
-          performer: eventPerformer || username || 'Unknown',
-          description: eventDescription,
-          recordedAt: new Date().toISOString(),
-          blockHash: '0x' + Math.random().toString(16).substring(2, 12)
-        };
+        // Hiển thị lỗi chi tiết - KHÔNG fallback localStorage
+        let errorMsg = '❌ Không thể ghi nhận sự kiện!\n\n';
+        if (error.message && error.message.includes('fetch')) {
+          errorMsg += '🔌 Lỗi kết nối server.\n\n';
+        } else if (!token) {
+          errorMsg += '🔑 Bạn cần đăng nhập lại.\n\n';
+        } else {
+          errorMsg += `📝 ${error.message}\n\n`;
+        }
+        errorMsg += 'Vui lòng thử lại hoặc liên hệ admin.';
 
-        let events = JSON.parse(localStorage.getItem('riceEvents') || '[]');
-        events.unshift(event);
-        localStorage.setItem('riceEvents', JSON.stringify(events));
-
-        // Hiển thị thông báo
-        showToast(`⚠️ Lưu offline thành công!\n\n📦 ${event.typeName}\n\n(Dữ liệu chỉ có trên thiết bị này)`);
-
-        // Reset form sau 2s
-        setTimeout(() => {
-          this.reset();
-          loadRecentEvents();
-        }, 2000);
+        showToast(errorMsg);
       }
-    });
-
-    // ===== LOAD TOKEN IDs =====
+    });    // ===== LOAD TOKEN IDs =====
     function loadTokenIds() {
       const batches = JSON.parse(localStorage.getItem('riceBatches') || '[]');
       const select = document.getElementById('tokenId');
