@@ -327,6 +327,10 @@
       const username = localStorage.getItem('username') || 'Guest';
       const userRole = localStorage.getItem('userRole') || 'guest';
 
+      // Xóa dữ liệu cũ trong localStorage (migration)
+      localStorage.removeItem('riceBatches');
+      localStorage.removeItem('riceEvents');
+
       // Hiển thị thông tin user (nếu có)
       if (document.getElementById('userDisplay')) {
         document.getElementById('userDisplay').innerHTML = `
