@@ -158,6 +158,68 @@ router.post('/', [
   }
 });
 
+// @route   POST /api/batches/simple
+// @desc    Create new batch WITHOUT authentication (simplified)
+// @access  Public
+router.post('/simple', [
+  body('batch_code').trim().notEmpty().withMessage('Mã lô là bắt buộc'),
+  body('product_name').trim().notEmpty().withMessage('Tên sản phẩm là bắt buộc'),
+  body('quantity').isFloat({ min: 0 }).withMessage('Số lượng phải lớn hơn 0')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const { batch_code, product_name, quantity, unit, variety, location, area, plant_date, notes } = req.body;
+
+    // Check if batch_code already exists
+    const [existing] = await db.query(
+      'SELECT id FROM batches WHERE batch_code = ?',
+      [batch_code]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Mã lô đã tồn tại' 
+      });
+    }
+
+    // Insert batch (created_by = 1 for anonymous/system user)
+    const [result] = await db.query(
+      'INSERT INTO batches (batch_code, product_name, quantity, unit, created_by) VALUES (?, ?, ?, ?, ?)',
+      [batch_code, product_name, quantity, unit || 'kg', 1]
+    );
+
+    // Create initial transaction
+    await db.query(
+      'INSERT INTO transactions (batch_id, user_id, action, description) VALUES (?, ?, ?, ?)',
+      [result.insertId, 1, 'CREATE', `Tạo lô ${batch_code} - ${product_name}`]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Tạo lô hàng thành công',
+      batch: {
+        id: result.insertId,
+        batch_code,
+        product_name,
+        quantity,
+        unit,
+        created_at: new Date()
+      }
+    });
+  } catch (error) {
+    console.error('Create batch simple error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Lỗi server: ' + error.message 
+    });
+  }
+});
+
 // @route   POST /api/batches/:batch_code/transaction
 // @desc    Add transaction to batch
 // @access  Private
