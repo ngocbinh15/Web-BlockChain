@@ -1056,106 +1056,71 @@
       if (!document.getElementById('nnb-notif-styles')) {
         const style = document.createElement('style');
         style.id = 'nnb-notif-styles';
-        style.textContent = \`
-          @keyframes slideInRight {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-          }
-          @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(400px); opacity: 0; }
-          }
-        \`;
+        style.textContent = '@keyframes slideInRight { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }';
         document.head.appendChild(style);
       }
     })();
-    
-    function showNotification(message, type = 'info', onConfirm = null) {
+
+    function showNotification(message, type, onConfirm) {
+      type = type || 'info';
       const container = document.getElementById('nnb-notification-container');
       if (!container) return;
-      
+
       const id = 'notif-' + Date.now();
       const notification = document.createElement('div');
       notification.id = id;
-      notification.style.cssText = \`
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-        padding: 20px;
-        margin-bottom: 15px;
-        animation: slideInRight 0.3s ease-out;
-        border-left: 5px solid;
-        position: relative;
-      \`;
-      
+      notification.style.cssText = 'background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 20px; margin-bottom: 15px; animation: slideInRight 0.3s ease-out; border-left: 5px solid; position: relative;';
+
       let color, icon, title;
-      switch(type) {
-        case 'success':
-          color = '#28a745'; icon = 'bi-check-circle-fill'; title = 'Thành công';
-          break;
-        case 'error':
-          color = '#dc3545'; icon = 'bi-x-circle-fill'; title = 'Lỗi';
-          break;
-        case 'warning':
-          color = '#ffc107'; icon = 'bi-exclamation-triangle-fill'; title = 'Cảnh báo';
-          break;
-        case 'confirm':
-          color = '#17a2b8'; icon = 'bi-question-circle-fill'; title = 'Xác nhận';
-          break;
-        default:
-          color = '#17a2b8'; icon = 'bi-info-circle-fill'; title = 'Thông báo';
+      if (type === 'success') {
+        color = '#28a745'; icon = 'bi-check-circle-fill'; title = 'Thành công';
+      } else if (type === 'error') {
+        color = '#dc3545'; icon = 'bi-x-circle-fill'; title = 'Lỗi';
+      } else if (type === 'warning') {
+        color = '#ffc107'; icon = 'bi-exclamation-triangle-fill'; title = 'Cảnh báo';
+      } else if (type === 'confirm') {
+        color = '#17a2b8'; icon = 'bi-question-circle-fill'; title = 'Xác nhận';
+      } else {
+        color = '#17a2b8'; icon = 'bi-info-circle-fill'; title = 'Thông báo';
       }
-      
+
       notification.style.borderLeftColor = color;
-      
+
       if (type === 'confirm') {
         if (onConfirm) window.__notificationCallbacks[id] = onConfirm;
-        
-        notification.innerHTML = \`
-          <div style="display: flex; align-items: start;">
-            <i class="bi \${icon}" style="font-size: 2rem; color: \${color}; margin-right: 15px;"></i>
-            <div style="flex: 1;">
-              <h5 style="margin: 0 0 10px 0; color: #333;">\${title}</h5>
-              <p style="margin: 0 0 15px 0; color: #666; white-space: pre-line;">\${message}</p>
-              <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button class="nnb-confirm-btn" data-id="\${id}"
-                        style="flex: 1; padding: 12px 20px; background: \${color}; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;">
-                  ✓ Xác nhận
-                </button>
-                <button class="nnb-cancel-btn" data-id="\${id}"
-                        style="flex: 1; padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
-                  ✕ Hủy
-                </button>
-              </div>
-            </div>
-          </div>
-        \`;
+
+        notification.innerHTML = '<div style="display: flex; align-items: start;">' +
+          '<i class="bi ' + icon + '" style="font-size: 2rem; color: ' + color + '; margin-right: 15px;"></i>' +
+          '<div style="flex: 1;">' +
+          '<h5 style="margin: 0 0 10px 0; color: #333;">' + title + '</h5>' +
+          '<p style="margin: 0 0 15px 0; color: #666; white-space: pre-line;">' + message + '</p>' +
+          '<div style="display: flex; gap: 10px; margin-top: 15px;">' +
+          '<button class="nnb-confirm-btn" data-id="' + id + '" style="flex: 1; padding: 12px 20px; background: ' + color + '; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;">✓ Xác nhận</button>' +
+          '<button class="nnb-cancel-btn" data-id="' + id + '" style="flex: 1; padding: 12px 20px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">✕ Hủy</button>' +
+          '</div></div></div>';
       } else {
-        notification.innerHTML = \`
-          <div style="display: flex; align-items: start;">
-            <i class="bi \${icon}" style="font-size: 2rem; color: \${color}; margin-right: 15px;"></i>
-            <div style="flex: 1;">
-              <h5 style="margin: 0 0 5px 0; color: #333;">\${title}</h5>
-              <p style="margin: 0; color: #666; white-space: pre-line;">\${message}</p>
-            </div>
-            <button onclick="document.getElementById('\${id}').remove()"
-                    style="background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer; padding: 0; margin-left: 10px;">×</button>
-          </div>
-        \`;
-        
-        setTimeout(() => {
+        notification.innerHTML = '<div style="display: flex; align-items: start;">' +
+          '<i class="bi ' + icon + '" style="font-size: 2rem; color: ' + color + '; margin-right: 15px;"></i>' +
+          '<div style="flex: 1;">' +
+          '<h5 style="margin: 0 0 5px 0; color: #333;">' + title + '</h5>' +
+          '<p style="margin: 0; color: #666; white-space: pre-line;">' + message + '</p>' +
+          '</div>' +
+          '<button onclick="document.getElementById(\'' + id + '\').remove()" style="background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer; padding: 0; margin-left: 10px;">×</button>' +
+          '</div>';
+
+        setTimeout(function () {
           const el = document.getElementById(id);
           if (el) {
             el.style.animation = 'slideOutRight 0.3s ease-in';
-            setTimeout(() => el.remove(), 300);
+            setTimeout(function () { el.remove(); }, 300);
           }
         }, 5000);
       }
-      
+
       container.appendChild(notification);
     }
-    
-    document.addEventListener('click', function(e) {
+
+    document.addEventListener('click', function (e) {
       if (e.target.classList.contains('nnb-confirm-btn')) {
         const notifId = e.target.getAttribute('data-id');
         const callback = window.__notificationCallbacks[notifId];
@@ -1166,7 +1131,7 @@
         const notifElement = document.getElementById(notifId);
         if (notifElement) notifElement.remove();
       }
-      
+
       if (e.target.classList.contains('nnb-cancel-btn')) {
         const notifId = e.target.getAttribute('data-id');
         delete window.__notificationCallbacks[notifId];
@@ -1370,7 +1335,7 @@
       }
 
       // Mô phỏng thêm người dùng vào blockchain
-      showNotification(`✅ Đã thêm người dùng mới vào hệ thống!\n\nTên: ${ name } \nEmail: ${ email } \nVai trò: ${ role } \nTrạng thái: ${ status } \n\n🔗 Giao dịch đã được ghi nhận trên blockchain.`, 'success');
+      showNotification(`✅ Đã thêm người dùng mới vào hệ thống!\n\nTên: ${name} \nEmail: ${email} \nVai trò: ${role} \nTrạng thái: ${status} \n\n🔗 Giao dịch đã được ghi nhận trên blockchain.`, 'success');
 
       // Đóng modal
       bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
@@ -1618,7 +1583,7 @@
           : '<span class="badge bg-secondary">Vô hiệu hóa</span>';
 
         row.innerHTML = `
-          < td > ${ startIndex + index + 1 }</td >
+          < td > ${startIndex + index + 1}</td >
           <td><i class="bi bi-person-circle text-success"></i> ${user.name}</td>
           <td>${user.email}</td>
           <td><span class="badge bg-success">${roleNames[user.role]}</span></td>
@@ -1655,21 +1620,21 @@
 
       // Nút Previous
       const prevLi = document.createElement('li');
-      prevLi.className = `page - item ${ currentPage === 1 ? 'disabled' : '' } `;
+      prevLi.className = `page - item ${currentPage === 1 ? 'disabled' : ''} `;
       prevLi.innerHTML = `< a class="page-link" href = "#" onclick = "changePage(${currentPage - 1}); return false;" >«</a > `;
       pagination.appendChild(prevLi);
 
       // Các số trang
       for (let i = 1; i <= totalPages; i++) {
         const li = document.createElement('li');
-        li.className = `page - item ${ i === currentPage ? 'active' : '' } `;
-        li.innerHTML = `< a class="page-link" href = "#" onclick = "changePage(${i}); return false;" > ${ i }</a > `;
+        li.className = `page - item ${i === currentPage ? 'active' : ''} `;
+        li.innerHTML = `< a class="page-link" href = "#" onclick = "changePage(${i}); return false;" > ${i}</a > `;
         pagination.appendChild(li);
       }
 
       // Nút Next
       const nextLi = document.createElement('li');
-      nextLi.className = `page - item ${ currentPage === totalPages ? 'disabled' : '' } `;
+      nextLi.className = `page - item ${currentPage === totalPages ? 'disabled' : ''} `;
       nextLi.innerHTML = `< a class="page-link" href = "#" onclick = "changePage(${currentPage + 1}); return false;" >»</a > `;
       pagination.appendChild(nextLi);
     }
@@ -1738,7 +1703,7 @@
       const modal = new bootstrap.Modal(document.getElementById('addUserModal'));
       modal.show();
 
-      showNotification(`Đang chỉnh sửa thông tin người dùng: ${ user.name } \n(Demo: Chức năng lưu sẽ được tích hợp với backend)`, 'info');
+      showNotification(`Đang chỉnh sửa thông tin người dùng: ${user.name} \n(Demo: Chức năng lưu sẽ được tích hợp với backend)`, 'info');
     }
 
     // ===== XÓA NGƯỜI DÙNG =====
@@ -1752,7 +1717,7 @@
       showNotification(`⚠️ Bạn có chắc muốn xóa người dùng "${user.name}" ?\n\nThao tác này không thể hoàn tác!`, 'confirm', () => {
         // Mô phỏng xóa trên blockchain
         const txHash = '0x' + Math.random().toString(16).substring(2, 18);
-        showNotification(`✅ Đã xóa người dùng "${user.name}" thành công!\n\n🔗 Transaction Hash: ${ txHash } \nGiao dịch đã được ghi nhận trên blockchain.`, 'success');
+        showNotification(`✅ Đã xóa người dùng "${user.name}" thành công!\n\n🔗 Transaction Hash: ${txHash} \nGiao dịch đã được ghi nhận trên blockchain.`, 'success');
 
         // Trong thực tế sẽ xóa khỏi array và localStorage
         // const index = dummyUsers.findIndex(u => u.id === userId);
@@ -1860,7 +1825,7 @@
       document.getElementById('viewBlockHash').textContent = '0x' + Math.random().toString(16).substring(2, 18) + '...';
 
       // Link đến trang truy xuất
-      document.getElementById('viewTraceabilityLink').href = `traceability.html ? token = ${ batch.tokenId } `;
+      document.getElementById('viewTraceabilityLink').href = `traceability.html ? token = ${batch.tokenId} `;
 
       // Hiển thị modal
       const modal = new bootstrap.Modal(document.getElementById('viewBatchModal'));
@@ -1974,7 +1939,7 @@
       // Mô phỏng ghi lên blockchain
       const blockHash = '0x' + Math.random().toString(16).substring(2, 18);
 
-      showNotification(`✅ Đã cập nhật thông tin lô ${ tokenId } thành công!\n\nGiống lúa: ${ variety } \nKhu vực: ${ location } \nDiện tích: ${ area } ha\nTrạng thái: ${ status } \n\n🔗 Block Hash: ${ blockHash } \nGiao dịch đã được ghi nhận trên blockchain.`, 'success');
+      showNotification(`✅ Đã cập nhật thông tin lô ${tokenId} thành công!\n\nGiống lúa: ${variety} \nKhu vực: ${location} \nDiện tích: ${area} ha\nTrạng thái: ${status} \n\n🔗 Block Hash: ${blockHash} \nGiao dịch đã được ghi nhận trên blockchain.`, 'success');
 
       // Đóng modal
       bootstrap.Modal.getInstance(document.getElementById('editBatchModal')).hide();
