@@ -526,7 +526,13 @@
           // Reset form
           this.reset();
 
-          // Reload danh sách sau khi đóng modal
+          // Reload danh sách NGAY LẬP TỨC
+          setTimeout(() => {
+            loadTokenIds();
+            loadRecentEvents();
+          }, 500);
+
+          // Reload thêm lần nữa khi đóng modal để chắc chắn
           document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
             loadTokenIds();
             loadRecentEvents();
@@ -620,7 +626,12 @@
           // Reset form
           this.reset();
 
-          // Reload danh sách sau khi đóng modal
+          // Reload danh sách NGAY LẬP TỨC
+          setTimeout(() => {
+            loadRecentEvents();
+          }, 500);
+
+          // Reload thêm lần nữa khi đóng modal để chắc chắn
           document.getElementById('eventSuccessModal').addEventListener('hidden.bs.modal', function () {
             loadRecentEvents();
           }, { once: true });
