@@ -1266,7 +1266,7 @@
         }[batch.status] || 'secondary';
 
         const row = `
-          < tr >
+          <tr>
                         <td><code>${batch.id}</code></td>
                         <td>${batch.variety}</td>
                         <td>${batch.creator}</td>
@@ -1280,7 +1280,7 @@
                                 <i class="bi bi-pencil"></i>
                             </button>
                         </td>
-                    </tr >
+                    </tr>
           `;
         tbody.innerHTML += row;
       });
@@ -1300,7 +1300,7 @@
 
       transactions.forEach(tx => {
         const item = `
-          < div class="list-group-item" >
+          <div class="list-group-item">
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <h6 class="mb-1">${tx.type}</h6>
@@ -1311,7 +1311,7 @@
               </div>
               <small class="text-muted">${tx.time}</small>
             </div>
-                    </div >
+                    </ >
           `;
         container.innerHTML += item;
       });
@@ -1359,11 +1359,11 @@
       },
       {
         id: 'U002',
-        name: 'Trần Thị Quản Trị',
-        email: 'admin2@ricebsc.vn',
+        name: 'Huỳnh Châu Thịnh',
+        email: 'thinhhc4567@ut.edu.vn',
         role: 'admin',
         phone: '0902345678',
-        address: 'Hà Nội',
+        address: 'Khánh Hoà',
         status: 'active',
         createdAt: '2024-02-10T09:30:00',
         blockchainId: '0x2b3c4d5e6f7890abcdef1234567890ab'
@@ -1583,7 +1583,7 @@
           : '<span class="badge bg-secondary">Vô hiệu hóa</span>';
 
         row.innerHTML = `
-          < td > ${startIndex + index + 1}</td >
+          <td> ${startIndex + index + 1}</td >
           <td><i class="bi bi-person-circle text-success"></i> ${user.name}</td>
           <td>${user.email}</td>
           <td><span class="badge bg-success">${roleNames[user.role]}</span></td>
@@ -1621,21 +1621,21 @@
       // Nút Previous
       const prevLi = document.createElement('li');
       prevLi.className = `page - item ${currentPage === 1 ? 'disabled' : ''} `;
-      prevLi.innerHTML = `< a class="page-link" href = "#" onclick = "changePage(${currentPage - 1}); return false;" >«</a > `;
+      prevLi.innerHTML = `<a class="page-link" href = "#" onclick = "changePage(${currentPage - 1}); return false;" >«</a > `;
       pagination.appendChild(prevLi);
 
       // Các số trang
       for (let i = 1; i <= totalPages; i++) {
         const li = document.createElement('li');
         li.className = `page - item ${i === currentPage ? 'active' : ''} `;
-        li.innerHTML = `< a class="page-link" href = "#" onclick = "changePage(${i}); return false;" > ${i}</a > `;
+        li.innerHTML = `<a class="page-link" href = "#" onclick = "changePage(${i}); return false;" > ${i}</a > `;
         pagination.appendChild(li);
       }
 
       // Nút Next
       const nextLi = document.createElement('li');
       nextLi.className = `page - item ${currentPage === totalPages ? 'disabled' : ''} `;
-      nextLi.innerHTML = `< a class="page-link" href = "#" onclick = "changePage(${currentPage + 1}); return false;" >»</a > `;
+      nextLi.innerHTML = `<a class="page-link" href = "#" onclick = "changePage(${currentPage + 1}); return false;" >»</a > `;
       pagination.appendChild(nextLi);
     }
 
