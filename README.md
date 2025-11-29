@@ -27,7 +27,7 @@ Hệ thống quản lý chuỗi cung ứng gạo dựa trên công nghệ Blockc
 1. Clone repository:
 
 ```bash
-git clone https://github.com/[your-username]/blockchain-rice-supply-chain.git
+git clone https://github.com/ngocbinh15/blockchain-rice-supply-chain.git
 ```
 
 2. Mở file `index.html` bằng Live Server hoặc trình duyệt
